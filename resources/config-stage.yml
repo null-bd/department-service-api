@@ -1,0 +1,11 @@
+app:
+  port: 8080
+  env: "staging"
+
+database:
+  host: "stg-db-host"
+  password: "stg_password"
+  max_conns: 20
+
+logging:
+  level: "info"

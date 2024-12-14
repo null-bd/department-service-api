@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # app:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: my-service
+  #   ports:
+  #     - "8080:8080"
+  #   environment:
+  #     - APP_ENV=local
+  #     - APP_DATABASE_HOST=postgres
+  #     - APP_DATABASE_PORT=5432
+  #     - APP_DATABASE_USER=postgres
+  #     - APP_DATABASE_PASSWORD=postgres
+  #     - APP_DATABASE_NAME=myapp
+  #     - CLIENT_SECRET=your-client-secret
+  #   depends_on:
+  #     - postgres
+  #     - keycloak
+  #   networks:
+  #     - app-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=microservice-template
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  # auth-service:
+  #   image: null-bd/auth-service:latest  # Replace with auth service image
+  #   container_name: auth-service
+  #   environment:
+  #     - DB_HOST=postgres
+  #     - DB_PORT=5432
+  #     - DB_USER=postgres
+  #     - DB_PASSWORD=postgres
+  #     - DB_NAME=auth
+  #     - REDIS_URL=redis:6379
+  #   ports:
+  #     - "8081:8080"
+  #   depends_on:
+  #     - postgres
+  #     - redis
+  #   networks:
+  #     - app-network
+
+volumes:
+  postgres_data:
+
+networks:
+  app-network:
+    driver: bridge

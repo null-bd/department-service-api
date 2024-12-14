@@ -1,0 +1,12 @@
+app:
+  port: 8080
+  env: "production"
+
+database:
+  host: "prod-db-host"
+  password: "prod_password"
+  max_conns: 50
+  sslmode: "verify-full"
+
+logging:
+  level: "warn"

@@ -1,0 +1,55 @@
+app:
+  name: "your-service-name"
+  port: 8080
+  version: "1.0.0"
+  env: "development"
+
+auth:
+  serviceId: "my-service"
+  clientId: "my-client"
+  clientSecret: "${CLIENT_SECRET}"
+  keycloakUrl: "http://auth-service:8080"
+  realm: "my-realm"
+  cacheEnabled: true
+  cacheUrl: "redis:6379"
+  resources:
+    - path: "/api/v1/resources"
+      method: "GET"
+      roles: ["admin", "user"]
+      actions: ["read:resources"]
+    - path: "/api/v1/resources"
+      method: "POST"
+      roles: ["admin"]
+      actions: ["create:resources"]
+
+# TODO: To be updated
+# auth:
+#   serviceId: "my-service"
+#   clientId: "my-client"
+#   clientSecret: "${CLIENT_SECRET}"
+#   authServiceUrl: "http://auth-service:8080"  # Auth service endpoint instead of Keycloak
+#   cacheEnabled: true
+#   cacheUrl: "redis:6379"
+#   resources:
+#     - path: "/api/v1/users"
+#       method: "GET"
+#       roles: ["admin", "user"]
+#       actions: ["read:users"]
+#     - path: "/api/v1/users"
+#       method: "POST"
+#       roles: ["admin"]
+#       actions: ["create:users"]
+
+database:
+  host: "127.0.0.1"
+  port: 5432
+  user: "postgres"
+  password: "postgres"
+  dbname: "microservice-template"
+  sslmode: "disable"
+  max_conns: 10
+  timeout: 30
+
+logging:
+  level: "info"
+  format: "json"

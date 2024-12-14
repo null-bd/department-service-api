@@ -1,0 +1,90 @@
+# Go specific
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+/vendor/
+/bin/
+/dist/
+
+# Go workspace file
+go.work
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Output directories
+/out/
+/build/
+/coverage/
+/coverage.txt
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.log
+
+# Config files
+/resources/config-local.yaml
+/resources/config-stg.yaml
+/resources/config-prod.yaml
+# Keep the default config
+!/resources/config.yaml
+
+# Database
+*.db
+*.sqlite
+dump.rdb
+
+# Debug files
+debug
+__debug_bin
+
+# Dependency directories (remove if you're committing vendor)
+/vendor/
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+coverage.html
+
+# Kubernetes
+kubeconfig
+*.kubeconfig
+
+# Project specific
+.netrc
+/certs/
+/secrets/
+/logs/
+*.pem
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Operating System
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
