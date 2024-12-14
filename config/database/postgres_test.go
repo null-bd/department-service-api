@@ -3,7 +3,7 @@ package database
 import (
 	"testing"
 
-	"github.com/null-bd/microservice-name/config"
+	"github.com/null-bd/department-service-api/config"
 
 	"github.com/stretchr/testify/assert"
 )

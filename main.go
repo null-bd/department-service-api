@@ -4,12 +4,12 @@ import (
 	"log"
 	"os"
 
-	"github.com/null-bd/microservice-name/config"
-	"github.com/null-bd/microservice-name/config/database"
+	"github.com/null-bd/department-service-api/config"
+	"github.com/null-bd/department-service-api/config/database"
 
-	// "github.com/null-bd/microservice-name/config/router"
+	// "github.com/null-bd/department-service-api/config/router"
 	"github.com/gin-gonic/gin"
-	"github.com/null-bd/microservice-name/internal/app"
+	"github.com/null-bd/department-service-api/internal/app"
 )
 
 func main() {

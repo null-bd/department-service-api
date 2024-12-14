@@ -9,8 +9,8 @@ package router
 
 // 	// "github.com/null-bd/authmiddleware"
 
-// 	"github.com/null-bd/microservice-name/config"
-// 	"github.com/null-bd/microservice-name/internal/rest"
+// 	"github.com/null-bd/department-service-api/config"
+// 	"github.com/null-bd/department-service-api/internal/rest"
 // )
 
 // type Router struct {

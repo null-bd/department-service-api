@@ -1,4 +1,4 @@
-module github.com/null-bd/microservice-name
+module github.com/null-bd/department-service-api
 
 go 1.22.0
 

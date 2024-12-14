@@ -7,7 +7,7 @@ import (
 
 	"github.com/jackc/pgx/v4/pgxpool"
 
-	"github.com/null-bd/microservice-name/config"
+	"github.com/null-bd/department-service-api/config"
 )
 
 type Postgres struct {

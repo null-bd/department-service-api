@@ -3,9 +3,9 @@ package app
 import (
 	"github.com/jackc/pgx/v4/pgxpool"
 
-	"github.com/null-bd/microservice-name/config"
-	"github.com/null-bd/microservice-name/internal/health"
-	"github.com/null-bd/microservice-name/internal/rest"
+	"github.com/null-bd/department-service-api/config"
+	"github.com/null-bd/department-service-api/internal/health"
+	"github.com/null-bd/department-service-api/internal/rest"
 )
 
 type Application struct {
