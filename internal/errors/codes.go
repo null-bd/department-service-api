@@ -1,8 +1,8 @@
 package errors
 
 const (
-	ErrDatabaseConnection ErrorCode = "MICROSERVICE_001"
-	ErrDatabaseQuery      ErrorCode = "MICROSERVICE_002"
-	ErrCacheConnection    ErrorCode = "MICROSERVICE_003"
+	ErrDatabaseConnection ErrorCode = "DEPT_001"
+	ErrDatabaseQuery      ErrorCode = "DEPT_002"
+	ErrCacheConnection    ErrorCode = "DEPT_003"
 	// Add more error codes as needed
 )
