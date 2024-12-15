@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/null-bd/department-service-api/internal/errors"
 )
 
 type HealthRepository struct {
@@ -18,6 +19,8 @@ func NewHealthRepository(db *pgxpool.Pool) *HealthRepository {
 func (r *HealthRepository) CheckDatabase() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-
-	return r.db.Ping(ctx)
+	if err := r.db.Ping(ctx); err != nil {
+		return errors.NewDatabaseConnectionError(err)
+	}
+	return nil
 }

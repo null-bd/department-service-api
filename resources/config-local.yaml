@@ -1,8 +1,14 @@
-app:
-  port: 3000
+ port: 3000
 
 database:
+  host: "127.0.0.1"
+  port: 5432
+  user: "postgres"
   password: "postgres"
+  dbname: "microservice-template"
+  sslmode: "disable"
+  max_conns: 10
+  timeout: 30
 
 logging:
   level: "debug"

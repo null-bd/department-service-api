@@ -6,9 +6,7 @@ import (
 
 	"github.com/null-bd/department-service-api/config"
 	"github.com/null-bd/department-service-api/config/database"
-
-	// "github.com/null-bd/department-service-api/config/router"
-	"github.com/gin-gonic/gin"
+	"github.com/null-bd/department-service-api/config/router"
 	"github.com/null-bd/department-service-api/internal/app"
 )
 
@@ -35,19 +33,11 @@ func main() {
 	// Initialize application
 	application := app.NewApplication(db.Pool, cfg)
 
-	handler := application.Handler
-
 	// Initialize router with auth middleware
-	// router, err := router.NewRouter(cfg, application.Handler)
-	// if err != nil {
-	// 	log.Fatalf("Failed to initialize router: %v", err)
-	// }
-
-	// router, err := gin.r
-	// Start server
-	router := gin.New()
-	router.GET("/health", handler.HealthCheck)
-
+	router, err := router.NewRouter(cfg, application.Handler)
+	if err != nil {
+		log.Fatalf("Failed to initialize router: %v", err)
+	}
 	log.Printf("Starting server on port %d in %s mode", cfg.App.Port, cfg.App.Env)
 	if err := router.Run(); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
