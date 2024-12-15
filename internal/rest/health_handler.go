@@ -21,10 +21,7 @@ func NewHandler(healthSvc *health.HealthService) *Handler {
 func (h *Handler) HealthCheck(c *gin.Context) {
 	status, err := h.healthSvc.CheckHealth()
 	if err != nil {
-		c.JSON(http.StatusServiceUnavailable, gin.H{
-			"status":  "unhealthy",
-			"details": status,
-		})
+		HandleError(c, err)
 		return
 	}
 

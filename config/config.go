@@ -39,14 +39,20 @@ type LogConfig struct {
 }
 
 type AuthConfig struct {
-	ServiceID    string         `mapstructure:"serviceId"`
-	ClientID     string         `mapstructure:"clientId"`
-	ClientSecret string         `mapstructure:"clientSecret"`
-	KeycloakURL  string         `mapstructure:"keycloakUrl"`
-	Realm        string         `mapstructure:"realm"`
-	CacheEnabled bool           `mapstructure:"cacheEnabled"`
-	CacheURL     string         `mapstructure:"cacheUrl"`
-	Resources    []AuthResource `mapstructure:"resources"`
+	ServiceID    string             `mapstructure:"serviceId"`
+	ClientID     string             `mapstructure:"clientId"`
+	ClientSecret string             `mapstructure:"clientSecret"`
+	KeycloakURL  string             `mapstructure:"keycloakUrl"`
+	Realm        string             `mapstructure:"realm"`
+	CacheEnabled bool               `mapstructure:"cacheEnabled"`
+	CacheURL     string             `mapstructure:"cacheUrl"`
+	Resources    []AuthResource     `mapstructure:"resources"`
+	PublicPaths  []PublicPathConfig `mapstructure:"publicPaths"`
+}
+
+type PublicPathConfig struct {
+	Path   string   `mapstructure:"path"`
+	Method []string `mapstructure:"method"` // HTTP methods to bypass auth (GET, POST, etc)
 }
 
 type AuthResource struct {

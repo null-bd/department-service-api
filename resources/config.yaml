@@ -2,7 +2,7 @@ app:
   name: "your-service-name"
   port: 8080
   version: "1.0.0"
-  env: "development"
+  env: "dev"
 
 auth:
   serviceId: "my-service"
@@ -21,6 +21,9 @@ auth:
       method: "POST"
       roles: ["admin"]
       actions: ["create:resources"]
+  publicPaths:
+    - path: "/health"
+      method: "GET"
 
 # TODO: To be updated
 # auth:

@@ -1,5 +1,7 @@
 package health
 
+import "github.com/null-bd/department-service-api/internal/errors"
+
 type HealthService struct {
 	repo *HealthRepository
 }
@@ -19,21 +21,22 @@ type HealthComponent struct {
 }
 
 func (s *HealthService) CheckHealth() (*HealthStatus, error) {
-	err := s.repo.CheckDatabase()
-
-	status := "Healthy"
-	message := "Connected"
-	if err != nil {
-		status = "Unhealthy"
-		message = err.Error()
+	if err := s.repo.CheckDatabase(); err != nil {
+		// Service layer can add more context or details to the error
+		if appErr, ok := err.(*errors.AppError); ok {
+			appErr.WithDetails(errors.ErrorDetail{
+				Field:   "database",
+				Message: "Database health check failed",
+			})
+			return nil, appErr
+		}
+		return nil, err
 	}
 
-	dbstatus := &HealthStatus{
+	return &HealthStatus{
 		Database: HealthComponent{
-			Status:  status,
-			Message: message,
+			Status:  "healthy",
+			Message: "Connected",
 		},
-	}
-
-	return dbstatus, nil
+	}, nil
 }
