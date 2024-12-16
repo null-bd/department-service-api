@@ -10,7 +10,7 @@ import (
 )
 
 type Application struct {
-	Handler *rest.Handler
+	Handler *rest.IHealthHandler
 	DB      *pgxpool.Pool
 	Config  *config.Config
 }
@@ -26,7 +26,7 @@ func NewApplication(logger logger.Logger, cfg *config.Config, db *pgxpool.Pool) 
 	h := rest.NewHandler(healthSvc, logger)
 
 	return &Application{
-		Handler: h,
+		Handler: &h,
 		DB:      db,
 		Config:  cfg,
 	}

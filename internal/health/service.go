@@ -5,18 +5,27 @@ import (
 	"github.com/null-bd/logger"
 )
 
-type HealthService struct {
-	repo *HealthRepository
-	log  logger.Logger
-}
+// region Definition
 
-func NewHealthService(repo *HealthRepository, logger logger.Logger) *HealthService {
-	return &HealthService{repo: repo, log: logger}
+type (
+	IHealthService interface {
+		CheckHealth() (*HealthStatus, error)
+	}
+
+	healthService struct {
+		repo iHealthRepository
+		log  logger.Logger
+	}
+)
+
+// region Implementation
+
+func NewHealthService(repo iHealthRepository, logger logger.Logger) IHealthService {
+	return &healthService{repo, logger}
 }
 
 type HealthStatus struct {
 	Database HealthComponent `json:"database"`
-	// Add other dependencies here
 }
 
 type HealthComponent struct {
@@ -24,10 +33,9 @@ type HealthComponent struct {
 	Message string `json:"message,omitempty"`
 }
 
-func (s *HealthService) CheckHealth() (*HealthStatus, error) {
+func (s *healthService) CheckHealth() (*HealthStatus, error) {
 	s.log.Info("service : HealthCheck : begin", nil)
 	if err := s.repo.CheckDatabase(); err != nil {
-		// Service layer can add more context or details to the error
 		if appErr, ok := err.(*errors.AppError); ok {
 			appErr.WithDetails(errors.ErrorDetail{
 				Field:   "database",
