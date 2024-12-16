@@ -21,7 +21,7 @@ type Router struct {
 	config         *config.Config
 }
 
-func NewRouter(logger logger.Logger, cfg *config.Config, h *rest.Handler) (*Router, error) {
+func NewRouter(logger logger.Logger, cfg *config.Config, h *rest.IHealthHandler) (*Router, error) {
 	// Load auth config
 	authConfig := loadAuthConfig(cfg)
 
@@ -56,7 +56,7 @@ func NewRouter(logger logger.Logger, cfg *config.Config, h *rest.Handler) (*Rout
 	router.Use(authMiddleware.Authenticate())
 
 	// Setup routes
-	setupHealthRoutes(router, h)
+	setupHealthRoutes(router, *h)
 	setupAPIRoutes(router, h, resourceMatcher)
 
 	return &Router{
@@ -102,7 +102,7 @@ func (r *Router) Run() error {
 	return r.engine.Run(r.config.App.GetAddress())
 }
 
-func setupAPIRoutes(router *gin.Engine, h *rest.Handler, resourceMatcher *authn.ResourceMatcher) {
+func setupAPIRoutes(router *gin.Engine, h *rest.IHealthHandler, resourceMatcher *authn.ResourceMatcher) {
 	// v1 := router.Group("/api/v1")
 	{
 		// Example Resources routes with authl
@@ -125,7 +125,7 @@ func corsMiddleware() gin.HandlerFunc {
 	})
 }
 
-func setupHealthRoutes(router *gin.Engine, h *rest.Handler) {
+func setupHealthRoutes(router *gin.Engine, h rest.IHealthHandler) {
 	router.GET("/health", h.HealthCheck)
 }
 

@@ -4,24 +4,25 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-
 	"github.com/null-bd/department-service-api/internal/health"
 	"github.com/null-bd/logger"
 )
 
-type Handler struct {
-	healthSvc *health.HealthService
-	log       logger.Logger
-}
+// region Definition
 
-func NewHandler(healthSvc *health.HealthService, logger logger.Logger) *Handler {
-	return &Handler{
-		log:       logger,
-		healthSvc: healthSvc,
+type (
+	IHealthHandler interface {
+		HealthCheck(c *gin.Context)
 	}
-}
+	healthHandler struct {
+		healthSvc health.IHealthService
+		log       logger.Logger
+	}
+)
 
-func (h *Handler) HealthCheck(c *gin.Context) {
+// region Implementation
+
+func (h *healthHandler) HealthCheck(c *gin.Context) {
 	h.log.Info("handler : HealthCheck : begin", nil)
 	status, err := h.healthSvc.CheckHealth()
 	if err != nil {
