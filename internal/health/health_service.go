@@ -1,13 +1,17 @@
 package health
 
-import "github.com/null-bd/department-service-api/internal/errors"
+import (
+	"github.com/null-bd/department-service-api/internal/errors"
+	"github.com/null-bd/logger"
+)
 
 type HealthService struct {
 	repo *HealthRepository
+	log  logger.Logger
 }
 
-func NewHealthService(repo *HealthRepository) *HealthService {
-	return &HealthService{repo: repo}
+func NewHealthService(repo *HealthRepository, logger logger.Logger) *HealthService {
+	return &HealthService{repo: repo, log: logger}
 }
 
 type HealthStatus struct {
@@ -21,6 +25,7 @@ type HealthComponent struct {
 }
 
 func (s *HealthService) CheckHealth() (*HealthStatus, error) {
+	s.log.Info("service : HealthCheck : begin", nil)
 	if err := s.repo.CheckDatabase(); err != nil {
 		// Service layer can add more context or details to the error
 		if appErr, ok := err.(*errors.AppError); ok {
@@ -33,6 +38,7 @@ func (s *HealthService) CheckHealth() (*HealthStatus, error) {
 		return nil, err
 	}
 
+	s.log.Info("service : HealthCheck : exit", nil)
 	return &HealthStatus{
 		Database: HealthComponent{
 			Status:  "healthy",

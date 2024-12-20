@@ -1,5 +1,5 @@
 app:
-  name: "your-service-name"
+  name: "department-service-api"
   port: 8080
   version: "1.0.0"
   env: "dev"

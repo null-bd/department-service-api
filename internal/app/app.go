@@ -6,6 +6,7 @@ import (
 	"github.com/null-bd/department-service-api/config"
 	"github.com/null-bd/department-service-api/internal/health"
 	"github.com/null-bd/department-service-api/internal/rest"
+	"github.com/null-bd/logger"
 )
 
 type Application struct {
@@ -14,15 +15,15 @@ type Application struct {
 	Config  *config.Config
 }
 
-func NewApplication(db *pgxpool.Pool, cfg *config.Config) *Application {
-	// Initialize repositories with pgx pool
-	healthRepo := health.NewHealthRepository(db)
+func NewApplication(logger logger.Logger, cfg *config.Config, db *pgxpool.Pool) *Application {
+	// Initialize repositories
+	healthRepo := health.NewHealthRepository(db, logger)
 
 	// Initialize services
-	healthSvc := health.NewHealthService(healthRepo)
+	healthSvc := health.NewHealthService(healthRepo, logger)
 
 	// Initialize handler
-	h := rest.NewHandler(healthSvc)
+	h := rest.NewHandler(healthSvc, logger)
 
 	return &Application{
 		Handler: h,

@@ -9,6 +9,7 @@ import (
 
 	"github.com/null-bd/authn"
 	"github.com/null-bd/authn/pkg/auth"
+	"github.com/null-bd/logger"
 
 	"github.com/null-bd/department-service-api/config"
 	"github.com/null-bd/department-service-api/internal/rest"
@@ -20,7 +21,7 @@ type Router struct {
 	config         *config.Config
 }
 
-func NewRouter(cfg *config.Config, h *rest.Handler) (*Router, error) {
+func NewRouter(logger logger.Logger, cfg *config.Config, h *rest.Handler) (*Router, error) {
 	// Load auth config
 	authConfig := loadAuthConfig(cfg)
 
@@ -31,7 +32,7 @@ func NewRouter(cfg *config.Config, h *rest.Handler) (*Router, error) {
 	}
 
 	// Create auth middleware
-	authMiddleware, err := authn.NewAuthMiddleware(*authConfig, permCallback)
+	authMiddleware, err := authn.NewAuthMiddleware(logger, *authConfig, permCallback)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize auth middleware: %v", err)
 	}
@@ -51,6 +52,7 @@ func NewRouter(cfg *config.Config, h *rest.Handler) (*Router, error) {
 	router.Use(corsMiddleware())
 
 	// Add authentication middleware
+	router.Use(authMiddleware.TraceMiddleware())
 	router.Use(authMiddleware.Authenticate())
 
 	// Setup routes
@@ -129,9 +131,9 @@ func setupHealthRoutes(router *gin.Engine, h *rest.Handler) {
 
 func getGinMode(env string) string {
 	switch env {
-	case "production":
+	case "prod":
 		return gin.ReleaseMode
-	case "testing":
+	case "stg":
 		return gin.TestMode
 	default:
 		return gin.DebugMode
