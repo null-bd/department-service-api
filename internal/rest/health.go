@@ -20,6 +20,13 @@ type (
 	}
 )
 
+func NewHealthHandler(healthSvc health.IHealthService, logger logger.Logger) IHealthHandler {
+	return &healthHandler{
+		healthSvc: healthSvc,
+		log:       logger,
+	}
+}
+
 // region Implementation
 
 func (h *healthHandler) HealthCheck(c *gin.Context) {

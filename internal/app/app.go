@@ -27,7 +27,7 @@ func NewApplication(logger logger.Logger, cfg *config.Config, db *pgxpool.Pool) 
 	deptSvc := department.NewDepartmentService(deptRepo, logger)
 
 	// Initialize handler
-	h := rest.NewHandler(healthSvc, deptSvc, logger)
+	h := rest.NewHealthHandler(healthSvc, logger)
 	d := rest.NewDepartmentHandler(deptSvc, logger)
 
 	return &Application{

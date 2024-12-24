@@ -43,7 +43,7 @@ func main() {
 	application := app.NewApplication(log, cfg, db.Pool)
 
 	// Initialize router with auth middleware
-	router, err := router.NewRouter(log, cfg, application.Handler)
+	router, err := router.NewRouter(log, cfg, &application.HealthHandler, &application.DeptHandler)
 	if err != nil {
 		log.Fatal("Failed to initialize database", logger.Fields{
 			"error": err,

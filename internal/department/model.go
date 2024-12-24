@@ -23,7 +23,7 @@ type Staffing struct {
 type Department struct {
 	ID                 string
 	BranchID           string
-	DepartmentID       string
+	OrganizationID     string
 	Name               string
 	Code               string
 	Type               string

@@ -21,17 +21,30 @@ import (
 
 func ToDepartmentResponse(dept *department.Department) *DepartmentResponse {
 	return &DepartmentResponse{
-		ID:          dept.ID,
-		Name:        dept.Name,
-		Code:        dept.Code,
-		Type:        dept.Type,
-		Description: dept.Description,
-		Status:      dept.Status,
-		ContactInfo: ContactInfoDTO{
-			Email:   dept.ContactInfo.Email,
-			Phone:   dept.ContactInfo.Phone,
-			Address: dept.ContactInfo.Address,
+		ID:                 dept.ID,
+		BranchID:           dept.BranchID,
+		OrganizationID:     dept.OrganizationID,
+		Name:               dept.Name,
+		Code:               dept.Code,
+		Type:               dept.Type,
+		Specialty:          dept.Specialty,
+		ParentDepartmentID: dept.ParentDepartmentID,
+		Status:             dept.Status,
+		Capacity: CapacityDTO{
+			TotalBeds:      dept.Capacity.TotalBeds,
+			AvailableBeds:  dept.Capacity.AvailableBeds,
+			OperatingRooms: dept.Capacity.OperatingRooms,
 		},
+		OperatingHours: OperatingHoursDTO{
+			Weekday:  dept.OperatingHours.Weekday,
+			Weekend:  dept.OperatingHours.Weekend,
+			Timezone: dept.OperatingHours.Timezone,
+			Holidays: dept.OperatingHours.Holidays,
+		},
+		// Staffing: StaffingDTO{
+		// 	DepartmentHead:   dept.Staffing.DepartmentHead,
+		// 	MinStaffRequired: dept.Staffing.MinStaffRequired,
+		// },
 		Metadata:  dept.Metadata,
 		CreatedAt: dept.CreatedAt,
 		UpdatedAt: dept.UpdatedAt,

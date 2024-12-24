@@ -20,13 +20,13 @@ import "time"
 // 	Metadata    map[string]interface{} `json:"metadata"`
 // }
 
-type Capacity struct {
+type CapacityDTO struct {
 	TotalBeds      int `json:"totalBeds"`
 	AvailableBeds  int `json:"availableBeds"`
 	OperatingRooms int `json:"operatingRooms"`
 }
 
-type OperatingHours struct {
+type OperatingHoursDTO struct {
 	Weekday  string `json:"weekday"`
 	Weekend  string `json:"weekend"`
 	Timezone string `json:"timezone"`
@@ -40,17 +40,17 @@ type ContactInfoDTO struct {
 }
 
 type DepartmentResponse struct {
-	ID                 string         `json:"id"`
-	BranchID           string         `json:"branchId"`
-	DepartmentID       string         `json:"departmentId"`
-	Name               string         `json:"name"`
-	Code               string         `json:"code"`
-	Type               string         `json:"type"`
-	Specialty          []string       `json:"specialty"`
-	ParentDepartmentID string         `json:"parentDepartmentId"`
-	Status             string         `json:"status"`
-	Capacity           Capacity       `json:"capacity"`
-	OperatingHours     OperatingHours `json:"operatingHours"`
+	ID                 string            `json:"id"`
+	BranchID           string            `json:"branchId"`
+	OrganizationID     string            `json:"organizationId"`
+	Name               string            `json:"name"`
+	Code               string            `json:"code"`
+	Type               string            `json:"type"`
+	Specialty          []string          `json:"specialty"`
+	ParentDepartmentID string            `json:"parentDepartmentId"`
+	Status             string            `json:"status"`
+	Capacity           CapacityDTO       `json:"capacity"`
+	OperatingHours     OperatingHoursDTO `json:"operatingHours"`
 	//Staffing           Staffing               `json:"staffing"`
 	Metadata  map[string]interface{} `json:"metadata"`
 	CreatedAt time.Time              `json:"createdAt"`

@@ -249,7 +249,7 @@ func (r *departmentRepository) List(ctx context.Context, filter map[string]inter
 		err := rows.Scan(
 			&dept.ID,
 			&dept.BranchID,
-			&dept.DepartmentID,
+			&dept.OrganizationID,
 			&dept.Name,
 			&dept.Code,
 			&dept.Type,

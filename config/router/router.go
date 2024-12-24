@@ -57,7 +57,7 @@ func NewRouter(logger logger.Logger, cfg *config.Config, healthhandler *rest.IHe
 
 	// Setup routes
 	setupHealthRoutes(router, *healthhandler)
-	setupAPIRoutes(router, deptHandler, resourceMatcher)
+	setupAPIRoutes(router, *deptHandler, resourceMatcher)
 
 	return &Router{
 		engine:         router,
@@ -110,7 +110,7 @@ func setupAPIRoutes(router *gin.Engine, deptHandler rest.IDepartmentHandler, res
 			// resources.GET("", deptHandler.GetDepartment)
 			//departments.POST("", deptHandler.CreateDepartment)
 			departments.GET("", deptHandler.ListDepartments)
-			departments.GET("/:deptId", deptHandler.GetDepartment)
+			//departments.GET("/:deptId", deptHandler.GetDepartment)
 			//departments.PUT("/:deptId", deptHandler.UpdateDepartment)
 			//departments.DELETE("/:deptId", deptHandler.DeleteDepartment)
 		}
