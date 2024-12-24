@@ -29,7 +29,7 @@ func NewHealthRepository(db *pgxpool.Pool, logger logger.Logger) iHealthReposito
 
 func (r *healthRepository) CheckDatabase() error {
 	r.log.Debug("repository : CheckDatabase : begin", nil)
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	if err := r.db.Ping(ctx); err != nil {
 		return errors.NewDatabaseConnectionError(err)

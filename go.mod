@@ -1,4 +1,4 @@
-module github.com/null-bd/department-service-api
+module github.com/null-bd/organization-service-api
 
 go 1.23.4
 
@@ -7,6 +7,7 @@ require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/jackc/pgx/v4 v4.18.3
 	github.com/null-bd/authn v0.1.9
+	github.com/null-bd/department-service-api v0.0.0-20241220191544-be8446856b9c
 	github.com/null-bd/logger v0.1.4
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.10.0
@@ -62,6 +63,7 @@ require (
 	github.com/klauspost/compress v1.17.4 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.9 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
+	github.com/lib/pq v1.10.9 // indirect
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
 	github.com/magiconair/properties v1.8.9 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
