@@ -2,24 +2,6 @@ package rest
 
 import "time"
 
-// type CreateDepartmentRequest struct {
-// 	Name        string                 `json:"name" binding:"required"`
-// 	Code        string                 `json:"code" binding:"required,uppercase"`
-// 	Type        string                 `json:"type" binding:"required,oneof=hospital clinic laboratory"`
-// 	Description string                 `json:"description"`
-// 	ContactInfo ContactInfoDTO         `json:"contactInfo" binding:"required"`
-// 	Metadata    map[string]interface{} `json:"metadata"`
-// }
-
-// type UpdateDepartmentRequest struct {
-// 	Name        string                 `json:"name" binding:"required"`
-// 	Type        string                 `json:"type" binding:"required,oneof=hospital clinic laboratory"`
-// 	Description string                 `json:"description"`
-// 	Status      string                 `json:"status" binding:"required,oneof=active inactive suspended"`
-// 	ContactInfo ContactInfoDTO         `json:"contactInfo" binding:"required"`
-// 	Metadata    map[string]interface{} `json:"metadata"`
-// }
-
 type CapacityDTO struct {
 	TotalBeds      int `json:"totalBeds"`
 	AvailableBeds  int `json:"availableBeds"`
@@ -39,7 +21,7 @@ type ContactInfoDTO struct {
 	Address string `json:"address" binding:"required"`
 }
 
-type DepartmentResponse struct {
+type ListDepartmentResponse struct {
 	ID                 string            `json:"id"`
 	BranchID           string            `json:"branchId"`
 	OrganizationID     string            `json:"organizationId"`
@@ -62,25 +44,3 @@ type Pagination struct {
 	Page  int `json:"page"`
 	Pages int `json:"pages"`
 }
-
-// type CreateBranchRequest struct {
-// 	Name           string                 `json:"name" binding:"required"`
-// 	Code           string                 `json:"code" binding:"required,uppercase"`
-// 	Type           string                 `json:"type" binding:"required,oneof=main satellite specialized"`
-// 	Description    string                 `json:"description"`
-// 	ContactInfo    ContactInfoDTO         `json:"contactInfo" binding:"required"`
-// 	OperatingHours OperatingHoursDTO      `json:"operatingHours"`
-// 	Capacity       CapacityDTO            `json:"capacity"`
-// 	Metadata       map[string]interface{} `json:"metadata,omitempty"`
-// }
-
-// type UpdateBranchRequest struct {
-// 	Name           string                 `json:"name" binding:"required"`
-// 	Type           string                 `json:"type" binding:"required,oneof=main satellite specialized"`
-// 	Description    string                 `json:"description"`
-// 	Status         string                 `json:"status" binding:"required,oneof=active inactive suspended"`
-// 	ContactInfo    ContactInfoDTO         `json:"contactInfo" binding:"required"`
-// 	OperatingHours OperatingHoursDTO      `json:"operatingHours"`
-// 	Capacity       CapacityDTO            `json:"capacity"`
-// 	Metadata       map[string]interface{} `json:"metadata,omitempty"`
-// }

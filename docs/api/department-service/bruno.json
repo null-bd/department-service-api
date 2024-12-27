@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "department-service",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

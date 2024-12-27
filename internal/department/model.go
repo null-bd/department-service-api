@@ -15,10 +15,10 @@ type OperatingHours struct {
 	Holidays string
 }
 
-type Staffing struct {
-	DepartmentHead   string
-	MinStaffRequired int
-}
+// type Staffing struct {
+// 	DepartmentHead   string
+// 	MinStaffRequired int
+// }
 
 type Department struct {
 	ID                 string
@@ -32,7 +32,6 @@ type Department struct {
 	Status             string
 	Capacity           Capacity
 	OperatingHours     OperatingHours
-	Staffing           Staffing
 	Metadata           map[string]interface{}
 	CreatedAt          time.Time
 	UpdatedAt          time.Time

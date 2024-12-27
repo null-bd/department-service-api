@@ -4,23 +4,8 @@ import (
 	"github.com/null-bd/department-service-api/internal/department"
 )
 
-// func ToDepartment(req *CreateDepartmentRequest) *department.Department {
-// 	return &department.Department{
-// 		Name:        req.Name,
-// 		Code:        req.Code,
-// 		Type:        req.Type,
-// 		Description: req.Description,
-// 		ContactInfo: department.ContactInfo{
-// 			Email:   req.ContactInfo.Email,
-// 			Phone:   req.ContactInfo.Phone,
-// 			Address: req.ContactInfo.Address,
-// 		},
-// 		Metadata: req.Metadata,
-// 	}
-// }
-
-func ToDepartmentResponse(dept *department.Department) *DepartmentResponse {
-	return &DepartmentResponse{
+func ToDepartmentResponse(dept *department.Department) *ListDepartmentResponse {
+	return &ListDepartmentResponse{
 		ID:                 dept.ID,
 		BranchID:           dept.BranchID,
 		OrganizationID:     dept.OrganizationID,
