@@ -26,6 +26,7 @@ func ToDepartmentResponse(dept *department.Department) *ListDepartmentResponse {
 			Timezone: dept.OperatingHours.Timezone,
 			Holidays: dept.OperatingHours.Holidays,
 		},
+		DepartmentHeadID: dept.DepartmentHeadID,
 		// Staffing: StaffingDTO{
 		// 	DepartmentHead:   dept.Staffing.DepartmentHead,
 		// 	MinStaffRequired: dept.Staffing.MinStaffRequired,
@@ -33,5 +34,6 @@ func ToDepartmentResponse(dept *department.Department) *ListDepartmentResponse {
 		Metadata:  dept.Metadata,
 		CreatedAt: dept.CreatedAt,
 		UpdatedAt: dept.UpdatedAt,
+		DeletedAt: dept.DeletedAt,
 	}
 }

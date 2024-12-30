@@ -22,21 +22,22 @@ type ContactInfoDTO struct {
 }
 
 type ListDepartmentResponse struct {
-	ID                 string            `json:"id"`
-	BranchID           string            `json:"branchId"`
-	OrganizationID     string            `json:"organizationId"`
-	Name               string            `json:"name"`
-	Code               string            `json:"code"`
-	Type               string            `json:"type"`
-	Specialty          []string          `json:"specialty"`
-	ParentDepartmentID string            `json:"parentDepartmentId"`
-	Status             string            `json:"status"`
-	Capacity           CapacityDTO       `json:"capacity"`
-	OperatingHours     OperatingHoursDTO `json:"operatingHours"`
-	//Staffing           Staffing               `json:"staffing"`
-	Metadata  map[string]interface{} `json:"metadata"`
-	CreatedAt time.Time              `json:"createdAt"`
-	UpdatedAt time.Time              `json:"updatedAt"`
+	ID                 string                 `json:"id" binding:"required"`
+	BranchID           string                 `json:"branchId"`
+	OrganizationID     string                 `json:"organizationId"`
+	Name               string                 `json:"name"`
+	Code               string                 `json:"code"`
+	Type               string                 `json:"type"`
+	Specialty          []string               `json:"specialty"`
+	ParentDepartmentID string                 `json:"parentDepartmentId"`
+	Status             string                 `json:"status"`
+	Capacity           CapacityDTO            `json:"capacity"`
+	OperatingHours     OperatingHoursDTO      `json:"operatingHours"`
+	DepartmentHeadID   string                 `json:"departmentheadID"`
+	Metadata           map[string]interface{} `json:"metadata,omitempty"`
+	CreatedAt          time.Time              `json:"createdAt"`
+	UpdatedAt          time.Time              `json:"updatedAt"`
+	DeletedAt          time.Time              `json:"deletedAt"`
 }
 
 type Pagination struct {

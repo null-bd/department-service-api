@@ -32,9 +32,11 @@ type Department struct {
 	Status             string
 	Capacity           Capacity
 	OperatingHours     OperatingHours
+	DepartmentHeadID   string
 	Metadata           map[string]interface{}
 	CreatedAt          time.Time
 	UpdatedAt          time.Time
+	DeletedAt          time.Time
 }
 
 type Pagination struct {

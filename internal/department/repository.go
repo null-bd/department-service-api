@@ -35,11 +35,12 @@ func NewDepartmentRepository(db *pgxpool.Pool, logger logger.Logger) IDepartment
 const (
 	listDeptBaseQuery = `
 		SELECT 
-			id, branchId, departmentId, name, code, type, specialty, 
-			parentDepartmentId, status, totalBeds, availableBeds, 
-			operatingRooms, weekday, weekend, timezone, holidays, metadata, 
-			createdAt, updatedAt
-		FROM department 
+			id, branch_id, organization_id, name, code, type, specialty, 
+			parent_department_id, status, capacity_total_beds, capacity_available_beds, 
+			capacity_operating_rooms, operating_hours_weekday, operating_hours_weekend, 
+			operating_hours_timezone, operating_hours_holidays, department_head_id,
+			metadata, created_at, updated_at
+		FROM departments
 		WHERE deleted_at IS NULL`
 
 	countDeptQuery = `
@@ -50,6 +51,12 @@ const (
 
 func (r *departmentRepository) List(ctx context.Context, branchId string, filter map[string]interface{}, page, limit int) ([]*Department, int, error) {
 	r.log.Debug("repository : List : begin", logger.Fields{"branchId": branchId, "filter": filter, "page": page, "limit": limit})
+
+	// Ensure branchId is included in the filter
+	if filter == nil {
+		filter = make(map[string]interface{})
+	}
+	filter["branch_id"] = branchId
 
 	// Build query with filters
 	query := listDeptBaseQuery
@@ -81,13 +88,13 @@ func (r *departmentRepository) List(ctx context.Context, branchId string, filter
 	var total int
 	err := r.db.QueryRow(ctx, countQuery, params[:len(params)-2]...).Scan(&total)
 	if err != nil {
-		return nil, 0, errors.New(errors.ErrDatabaseOperation, "database error", err)
+		return nil, 0, errors.New(errors.ErrDatabaseOperation, "database error1", err)
 	}
 
 	// Execute main query
 	rows, err := r.db.Query(ctx, query, params...)
 	if err != nil {
-		return nil, 0, errors.New(errors.ErrDatabaseOperation, "database error", err)
+		return nil, 0, errors.New(errors.ErrDatabaseOperation, "database error2", err)
 	}
 	defer rows.Close()
 
@@ -117,12 +124,14 @@ func (r *departmentRepository) List(ctx context.Context, branchId string, filter
 			&dept.OperatingHours.Weekend,
 			&dept.OperatingHours.Timezone,
 			&dept.OperatingHours.Holidays,
+			&dept.DepartmentHeadID,
 			&dept.Metadata,
 			&dept.CreatedAt,
 			&dept.UpdatedAt,
 		)
+
 		if err != nil {
-			return nil, 0, errors.New(errors.ErrDatabaseOperation, "database error", err)
+			return nil, 0, errors.New(errors.ErrDatabaseOperation, "database error3", err)
 		}
 
 		// dept.CreatedAt = createdAt.Format(time.RFC3339)
@@ -131,7 +140,7 @@ func (r *departmentRepository) List(ctx context.Context, branchId string, filter
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, 0, errors.New(errors.ErrDatabaseOperation, "database error", err)
+		return nil, 0, errors.New(errors.ErrDatabaseOperation, "database error4", err)
 	}
 
 	r.log.Debug("repository : List : exit", nil)

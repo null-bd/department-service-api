@@ -43,8 +43,8 @@ func (h *departmentHandler) ListDepartments(c *gin.Context) {
 	if deptType := c.Query("type"); deptType != "" {
 		filter["type"] = deptType
 	}
-	if deptSpeciality := c.Query("speciality"); deptSpeciality != "" {
-		filter["speciality"] = deptSpeciality
+	if deptSpeciality := c.Query("specialty"); deptSpeciality != "" {
+		filter["specialty"] = deptSpeciality
 	}
 
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))

@@ -20,7 +20,7 @@ CREATE TABLE departments (
     operating_hours_holidays VARCHAR(11),
     department_head_id UUID,
     min_staff_required INTEGER,
-    metadata JSONB,
+    metadata JSONB DEFAULT '{}'::JSONB,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
     deleted_at TIMESTAMP WITH TIME ZONE,
