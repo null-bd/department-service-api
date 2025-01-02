@@ -7,7 +7,7 @@ import (
 )
 
 type IDepartmentService interface {
-	//GetDepartment(ctx context.Context, id string) (*Department, error)
+	GetDepartment(ctx context.Context, id string) (*Department, error)
 	ListDepartments(ctx context.Context, branchId string, filter map[string]interface{}, page, limit int) ([]*Department, *Pagination, error)
 }
 
@@ -21,6 +21,18 @@ func NewDepartmentService(repo IDepartmentRepository, logger logger.Logger) IDep
 		repo: repo,
 		log:  logger,
 	}
+}
+
+func (s *departmentService) GetDepartment(ctx context.Context, id string) (*Department, error) {
+	s.log.Info("service : GetDepatment : begin", logger.Fields{"id": id})
+
+	dept, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	s.log.Info("service : GetDepatment : exit", nil)
+	return dept, nil
 }
 
 func (s *departmentService) ListDepartments(ctx context.Context, branchId string, filter map[string]interface{}, page, limit int) ([]*Department, *Pagination, error) {

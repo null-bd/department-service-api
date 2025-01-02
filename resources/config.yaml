@@ -22,11 +22,17 @@ auth:
       method: "POST"
       roles: ["admin"]
       actions: ["create:departments"]
+    - path: "/api/v1/departments/:id"
+      method: "GET"
+      roles: ["ADMIN", "ORG_ADMIN", "USER"]
+      actions: ["read:departments"]
   publicPaths:
     - path: "/health"
       method: "GET"
     - path: "/api/v1/departments"
       method: "GET"  
+    - path: "/api/v1/departments/*"
+      method: "GET"
 
 # TODO: To be updated
 # auth:
