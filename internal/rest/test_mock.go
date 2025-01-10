@@ -1,4 +1,4 @@
-package department
+package rest
 
 import (
 	"github.com/null-bd/logger"
