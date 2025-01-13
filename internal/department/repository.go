@@ -102,9 +102,6 @@ func (r *departmentRepository) GetByID(ctx context.Context, id string) (*Departm
 		return nil, errors.New(errors.ErrDatabaseOperation, "database error", err)
 	}
 
-	// org.CreatedAt = createdAt.Format(time.RFC3339)
-	// org.UpdatedAt = updatedAt.Format(time.RFC3339)
-
 	r.log.Debug("repository : GetByID : exit", logger.Fields{"department": dept})
 	return dept, nil
 }

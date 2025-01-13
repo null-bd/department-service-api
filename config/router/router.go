@@ -26,7 +26,7 @@ func NewRouter(logger logger.Logger, cfg *config.Config, healthhandler *rest.IHe
 	authConfig := loadAuthConfig(cfg)
 
 	// Initialize permission callback
-	permCallback := func(deptId, branchId, role string) []string {
+	permCallback := func(orgId, branchId, role string) []string {
 		// Customize this based on your needs
 		return nil
 	}

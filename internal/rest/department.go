@@ -87,22 +87,3 @@ func (h *departmentHandler) ListDepartments(c *gin.Context) {
 	})
 	h.log.Info("handler : ListDepartments : exit", nil)
 }
-
-// func (h *departmentHandler) GetDepartment(c *gin.Context) {
-// 	h.log.Info("handler : GetDepartment : begin", nil)
-
-// 	id := c.Param("id")
-// 	if id == "" {
-// 		HandleError(c, errors.New(errors.ErrBadRequest, "missing department id", nil))
-// 		return
-// 	}
-
-// 	dept, err := h.deptSvc.GetDepartment(c.Request.Context(), id)
-// 	if err != nil {
-// 		HandleError(c, err)
-// 		return
-// 	}
-
-// 	c.JSON(http.StatusOK, ToDepartmentResponse(dept))
-// 	h.log.Info("handler : GetDepartment : exit", nil)
-// }
