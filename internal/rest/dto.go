@@ -1,7 +1,5 @@
 package rest
 
-import "time"
-
 type CapacityDTO struct {
 	TotalBeds      int `json:"totalBeds"`
 	AvailableBeds  int `json:"availableBeds"`
@@ -35,9 +33,9 @@ type ListDepartmentResponse struct {
 	OperatingHours     OperatingHoursDTO      `json:"operatingHours"`
 	DepartmentHeadID   string                 `json:"departmentheadID"`
 	Metadata           map[string]interface{} `json:"metadata,omitempty"`
-	CreatedAt          time.Time              `json:"createdAt"`
-	UpdatedAt          time.Time              `json:"updatedAt"`
-	DeletedAt          time.Time              `json:"deletedAt"`
+	CreatedAt          string                 `json:"createdAt"`
+	UpdatedAt          string                 `json:"updatedAt"`
+	DeletedAt          string                 `json:"deletedAt"`
 }
 
 type Pagination struct {

@@ -1,7 +1,5 @@
 package department
 
-import "time"
-
 type Capacity struct {
 	TotalBeds      int
 	AvailableBeds  int
@@ -34,9 +32,9 @@ type Department struct {
 	OperatingHours     OperatingHours
 	DepartmentHeadID   string
 	Metadata           map[string]interface{}
-	CreatedAt          time.Time
-	UpdatedAt          time.Time
-	DeletedAt          time.Time
+	CreatedAt          string
+	UpdatedAt          string
+	DeletedAt          string
 }
 
 type Pagination struct {

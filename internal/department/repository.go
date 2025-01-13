@@ -4,6 +4,7 @@ import (
 	"context"
 	stderr "errors"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -70,7 +71,7 @@ func (r *departmentRepository) GetByID(ctx context.Context, id string) (*Departm
 		Metadata:       make(map[string]interface{}),
 	}
 
-	//var createdAt, updatedAt time.Time
+	var createdAt, updatedAt time.Time
 
 	err := r.db.QueryRow(ctx, getDeptByIDQuery, id).Scan(
 		&dept.ID,
@@ -91,8 +92,8 @@ func (r *departmentRepository) GetByID(ctx context.Context, id string) (*Departm
 		&dept.OperatingHours.Holidays,
 		&dept.DepartmentHeadID,
 		&dept.Metadata,
-		&dept.CreatedAt,
-		&dept.UpdatedAt,
+		&createdAt,
+		&updatedAt,
 	)
 
 	if err != nil {
@@ -101,6 +102,9 @@ func (r *departmentRepository) GetByID(ctx context.Context, id string) (*Departm
 		}
 		return nil, errors.New(errors.ErrDatabaseOperation, "database error", err)
 	}
+
+	dept.CreatedAt = createdAt.Format(time.RFC3339)
+	dept.UpdatedAt = updatedAt.Format(time.RFC3339)
 
 	r.log.Debug("repository : GetByID : exit", logger.Fields{"department": dept})
 	return dept, nil
@@ -162,7 +166,7 @@ func (r *departmentRepository) List(ctx context.Context, branchId string, filter
 			OperatingHours: OperatingHours{},
 			Metadata:       make(map[string]interface{}),
 		}
-		//var createdAt, updatedAt time.Time
+		var createdAt, updatedAt time.Time
 
 		err := rows.Scan(
 			&dept.ID,
@@ -183,16 +187,16 @@ func (r *departmentRepository) List(ctx context.Context, branchId string, filter
 			&dept.OperatingHours.Holidays,
 			&dept.DepartmentHeadID,
 			&dept.Metadata,
-			&dept.CreatedAt,
-			&dept.UpdatedAt,
+			&createdAt,
+			&updatedAt,
 		)
 
 		if err != nil {
 			return nil, 0, errors.New(errors.ErrDatabaseOperation, "database error3", err)
 		}
 
-		// dept.CreatedAt = createdAt.Format(time.RFC3339)
-		// dept.UpdatedAt = updatedAt.Format(time.RFC3339)
+		dept.CreatedAt = createdAt.Format(time.RFC3339)
+		dept.UpdatedAt = updatedAt.Format(time.RFC3339)
 		depts = append(depts, dept)
 	}
 
