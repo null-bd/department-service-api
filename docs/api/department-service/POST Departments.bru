@@ -1,0 +1,41 @@
+meta {
+  name: POST Departments
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{host}}/api/v1/departments
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "id":
+    "name": "Emergency",
+    "code": "EMER001",
+    "type": "hospital", 
+    "specialty": ["emergency"],
+    "parentDepartmentId": "6ce4cfd3-81c8-401a-bbea-c8dea98ccc7d",
+    "status": "active",
+    "capacity": {
+      "totalBeds": 0,
+      "availableBeds": 0,
+      "operatingRooms": 0
+    },
+    "operatingHours": {
+      "weekday": "09:00-17:00",
+      "weekend": "10:00-14:00",
+      "timezone": "UTC+0",
+      "holidays": "09:00-13:00"
+    },
+    "contactInfo": {
+      "email": "emergency@hospital.com",
+      "phone": "+1234567890",
+      "address": "123 Emergency Street, City, Country"
+    },
+    "metadata": {}
+  }
+  
+}

@@ -16,6 +16,7 @@ import (
 
 type (
 	IDepartmentRepository interface {
+		Create(ctx context.Context, dept *Department) (*Department, error)
 		GetByID(ctx context.Context, id string) (*Department, error)
 		List(ctx context.Context, branchId string, filter map[string]interface{}, page, limit int) ([]*Department, int, error)
 	}
@@ -36,6 +37,16 @@ func NewDepartmentRepository(db *pgxpool.Pool, logger logger.Logger) IDepartment
 // region SQL Queries
 
 const (
+	createDeptQuery = `
+	    INSERT INTO department (
+			id, name, code, type, description, status, 
+			contact_email, contact_phone, contact_address,
+			metadata, created_at, updated_at
+		) VALUES (
+			$1, $2, $3, $4, $5, $6, 
+			$7, $8, $9, $10, $11, $11
+		) RETURNING id`
+
 	listDeptBaseQuery = `
 		SELECT 
 			id, branch_id, organization_id, name, code, type, specialty, 
@@ -61,6 +72,36 @@ const (
 		FROM departments 
 		WHERE deleted_at IS NULL`
 )
+
+func (r *departmentRepository) Create(ctx context.Context, dept *Department) (*Department, error) {
+	r.log.Debug("repository : Create : begin", nil)
+	now := time.Now().UTC()
+
+	_, err := r.db.Exec(ctx, createDeptQuery,
+		dept.ID,
+		dept.Name,
+		dept.Code,
+		dept.Type,
+		dept.Description,
+		dept.Status,
+		dept.ContactInfo.Email,
+		dept.ContactInfo.Phone,
+		dept.ContactInfo.Address,
+		dept.Metadata,
+		now.Format(time.RFC3339),
+	)
+	if err != nil {
+		return nil, errors.New(errors.ErrDatabaseOperation, "database error", err)
+	}
+
+	createdDept, err := r.GetByID(ctx, dept.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	r.log.Debug("repository : Create : exit", nil)
+	return createdDept, nil
+}
 
 func (r *departmentRepository) GetByID(ctx context.Context, id string) (*Department, error) {
 	r.log.Debug("repository : GetByID : begin", logger.Fields{"id": id})

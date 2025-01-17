@@ -11,6 +11,7 @@ import (
 )
 
 type IDepartmentHandler interface {
+	CreateDepartment(c *gin.Context)
 	GetDepartment(c *gin.Context)
 	ListDepartments(c *gin.Context)
 }
@@ -25,6 +26,26 @@ func NewDepartmentHandler(deptSvc department.IDepartmentService, logger logger.L
 		deptSvc: deptSvc,
 		log:     logger,
 	}
+}
+
+func (h *departmentHandler) CreateDepartment(c *gin.Context) {
+	h.log.Info("handler : CreateDepartment : begin", nil)
+
+	var req CreateDepartmentRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		HandleError(c, errors.New(errors.ErrBadRequest, "invalid request body", err))
+		return
+	}
+
+	dept := ToDepartment(&req)
+	result, err := h.deptSvc.CreateDepartment(c.Request.Context(), dept)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusCreated, ToDepartmentResponse(result))
+	h.log.Info("handler : CreateDepartment : exit", nil)
 }
 
 func (h *departmentHandler) GetDepartment(c *gin.Context) {

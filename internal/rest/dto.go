@@ -19,6 +19,18 @@ type ContactInfoDTO struct {
 	Address string `json:"address" binding:"required"`
 }
 
+type CreateDepartmentRequest struct {
+	Name               string                 `json:"name" binding:"required"`
+	Code               string                 `json:"code" binding:"required,uppercase"`
+	Type               string                 `json:"type" binding:"required,oneof=hospital clinic laboratory medical"`
+	Specialty          []string               `json:"specialty"`
+	ParentDepartmentID string                 `json:"parentDepartmentId"`
+	Status             string                 `json:"status" binding:"required,oneof=active inactive"`
+	Capacity           CapacityDTO            `json:"capacity"`
+	OperatingHours     OperatingHoursDTO      `json:"operatingHours"`
+	Metadata           map[string]interface{} `json:"metadata"`
+}
+
 type ListDepartmentResponse struct {
 	ID                 string                 `json:"id" binding:"required"`
 	BranchID           string                 `json:"branchId"`

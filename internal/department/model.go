@@ -25,9 +25,11 @@ type Department struct {
 	Name               string
 	Code               string
 	Type               string
+	Description        string
 	Specialty          []string
 	ParentDepartmentID string
 	Status             string
+	ContactInfo        ContactInfo
 	Capacity           Capacity
 	OperatingHours     OperatingHours
 	DepartmentHeadID   string
@@ -46,4 +48,10 @@ type Pagination struct {
 type DepartmentListResponse struct {
 	Data       []Department
 	Pagination Pagination
+}
+
+type ContactInfo struct {
+	Email   string
+	Phone   string
+	Address string
 }
