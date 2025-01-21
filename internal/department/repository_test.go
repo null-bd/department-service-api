@@ -3,6 +3,7 @@ package department
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/null-bd/department-service-api/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -125,4 +126,46 @@ func (s *RepositoryTestSuite) TestGetbyID() {
 	assert.Equal(s.T(), dept.ID, result.ID)
 	assert.Equal(s.T(), dept.Name, result.Name)
 	assert.Equal(s.T(), dept.Code, result.Code)
+}
+
+func (s *RepositoryTestSuite) TestList() {
+	// Arrange
+	ctx := context.Background()
+
+	// Create test data
+	depts := []*Department{
+		{
+			ID:       uuid.New().String(),
+			BranchID: uuid.New().String(),
+			Name:     "Hospital 1",
+			Code:     "TEST003",
+			Type:     "hospital",
+			Status:   "active",
+		},
+		{
+			ID:       uuid.New().String(),
+			BranchID: uuid.New().String(),
+			Name:     "Hospital 2",
+			Code:     "TEST004",
+			Type:     "hospital",
+			Status:   "active",
+		},
+	}
+
+	for _, dept := range depts {
+		_, err := s.repo.Create(ctx, dept)
+		require.NoError(s.T(), err)
+	}
+
+	// Act
+	filter := map[string]interface{}{
+		"status": "active",
+		"type":   "hospital",
+	}
+	results, total, err := s.repo.List(ctx, depts.BranchID, filter, 1, 10)
+
+	// Assert
+	assert.NoError(s.T(), err)
+	assert.GreaterOrEqual(s.T(), len(results), 2)
+	assert.GreaterOrEqual(s.T(), total, 2)
 }
