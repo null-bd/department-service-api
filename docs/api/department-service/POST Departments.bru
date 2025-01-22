@@ -12,12 +12,16 @@ post {
 
 body:json {
   {
-    "id":
-    "name": "Emergency",
-    "code": "EMER001",
-    "type": "hospital", 
-    "specialty": ["emergency"],
-    "parentDepartmentId": "6ce4cfd3-81c8-401a-bbea-c8dea98ccc7d",
+    "branchId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "organizationId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "name": "Cardiology",
+    "code": "CARD001",
+    "type": "medical",
+    "specialty": [
+      "cardiology",
+      "vascular"
+    ],
+    "parentDepartmentId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     "status": "active",
     "capacity": {
       "totalBeds": 0,
@@ -30,12 +34,12 @@ body:json {
       "timezone": "UTC+0",
       "holidays": "09:00-13:00"
     },
-    "contactInfo": {
-      "email": "emergency@hospital.com",
-      "phone": "+1234567890",
-      "address": "123 Emergency Street, City, Country"
+    "staffing": {
+      "departmentHead": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "minStaffRequired": 1
     },
-    "metadata": {}
+    "metadata": {
+      "additionalProp1": {}
+    }
   }
-  
 }

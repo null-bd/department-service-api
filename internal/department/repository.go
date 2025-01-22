@@ -40,12 +40,14 @@ func NewDepartmentRepository(db *pgxpool.Pool, logger logger.Logger) IDepartment
 const (
 	createDeptQuery = `
 	    INSERT INTO department (
-			id, name, code, type, description, status, 
-			contact_email, contact_phone, contact_address,
+			id, branch_id, organization_id, name, code, type, specialty, 
+			parent_department_id, status, capacity_total_beds, capacity_available_beds, 
+			capacity_operating_rooms, operating_hours_weekday, operating_hours_weekend, 
+			operating_hours_timezone, operating_hours_holidays, department_head_id,
 			metadata, created_at, updated_at
 		) VALUES (
 			$1, $2, $3, $4, $5, $6, 
-			$7, $8, $9, $10, $11, $11
+			$7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $18
 		) RETURNING id`
 
 	listDeptBaseQuery = `
@@ -77,7 +79,7 @@ const (
 			operating_hours_timezone, operating_hours_holidays, department_head_id,
 			metadata, created_at, updated_at
 		FROM departments
-		WHERE id = $1 AND deleted_at IS NULL`
+		WHERE code = $1 AND deleted_at IS NULL`
 
 	countDeptQuery = `
 		SELECT COUNT(*) 
@@ -90,16 +92,24 @@ func (r *departmentRepository) Create(ctx context.Context, dept *Department) (*D
 	now := time.Now().UTC()
 
 	_, err := r.db.Exec(ctx, createDeptQuery,
-		dept.ID,
-		dept.Name,
-		dept.Code,
-		dept.Type,
-		dept.Description,
-		dept.Status,
-		dept.ContactInfo.Email,
-		dept.ContactInfo.Phone,
-		dept.ContactInfo.Address,
-		dept.Metadata,
+		&dept.ID,
+		&dept.BranchID,
+		&dept.OrganizationID,
+		&dept.Name,
+		&dept.Code,
+		&dept.Type,
+		&dept.Specialty,
+		&dept.ParentDepartmentID,
+		&dept.Status,
+		&dept.Capacity.TotalBeds,
+		&dept.Capacity.AvailableBeds,
+		&dept.Capacity.OperatingRooms,
+		&dept.OperatingHours.Weekday,
+		&dept.OperatingHours.Weekend,
+		&dept.OperatingHours.Timezone,
+		&dept.OperatingHours.Holidays,
+		&dept.DepartmentHeadID,
+		&dept.Metadata,
 		now.Format(time.RFC3339),
 	)
 	if err != nil {
@@ -167,8 +177,9 @@ func (r *departmentRepository) GetByCode(ctx context.Context, code string) (*Dep
 	r.log.Debug("repository : GetByCode : begin", nil)
 
 	dept := &Department{
-		ContactInfo: ContactInfo{},
-		Metadata:    make(map[string]interface{}),
+		OperatingHours: OperatingHours{},
+		Capacity:       Capacity{},
+		Metadata:       make(map[string]interface{}),
 	}
 
 	var createdAt, updatedAt time.Time

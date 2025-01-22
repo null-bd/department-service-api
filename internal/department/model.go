@@ -29,7 +29,6 @@ type Department struct {
 	Specialty          []string
 	ParentDepartmentID string
 	Status             string
-	ContactInfo        ContactInfo
 	Capacity           Capacity
 	OperatingHours     OperatingHours
 	DepartmentHeadID   string

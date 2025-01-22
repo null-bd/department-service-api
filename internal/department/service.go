@@ -31,11 +31,11 @@ func (s *departmentService) CreateDepartment(ctx context.Context, dept *Departme
 	s.log.Info("service : CreateDepartment : begin", nil)
 
 	// Check if organization exists
-	existingdept, err := s.repo.GetByCode(ctx, dept.Code)
+	existingDept, err := s.repo.GetByCode(ctx, dept.Code)
 	if err != nil {
 		return nil, err
 	}
-	if existingdept != nil {
+	if existingDept != nil {
 		return nil, &errors.AppError{
 			Code:    errors.ErrDeptExists,
 			Message: "department with this code already exists",
