@@ -134,3 +134,5 @@ Authentication is handled via a auth service. Configure the following in your en
 - Realm
 - Client ID and Secret
 - Resource permissions
+
+## TEND

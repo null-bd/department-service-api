@@ -45,6 +45,10 @@ func getHTTPStatusFromErrorCode(code errors.ErrorCode) int {
 	case errors.ErrDatabaseConnection, errors.ErrDatabaseQuery:
 		return http.StatusServiceUnavailable
 	// Add more mappings as needed
+	case errors.ErrBadRequest:
+		return http.StatusBadRequest
+	case errors.ErrDeptExists:
+		return http.StatusConflict
 	default:
 		return http.StatusInternalServerError
 	}

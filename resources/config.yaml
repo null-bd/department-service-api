@@ -13,16 +13,25 @@ auth:
   cacheEnabled: true
   cacheUrl: "redis:6379"
   resources:
-    - path: "/api/v1/resources"
+  # Department Endpoints
+    - path: "/api/v1/departments"
       method: "GET"
       roles: ["admin", "user"]
-      actions: ["read:resources"]
-    - path: "/api/v1/resources"
+      actions: ["read:departments"]
+    - path: "/api/v1/departments"
       method: "POST"
       roles: ["admin"]
-      actions: ["create:resources"]
+      actions: ["create:departments"]
+    - path: "/api/v1/departments/:id"
+      method: "GET"
+      roles: ["ADMIN", "ORG_ADMIN", "USER"]
+      actions: ["read:departments"]
   publicPaths:
     - path: "/health"
+      method: "GET"
+    - path: "/api/v1/departments"
+      method: "GET"  
+    - path: "/api/v1/departments/*"
       method: "GET"
 
 # TODO: To be updated
@@ -48,7 +57,7 @@ database:
   port: 5432
   user: "postgres"
   password: "postgres"
-  dbname: "microservice-template"
+  dbname: "department"
   sslmode: "disable"
   max_conns: 10
   timeout: 30

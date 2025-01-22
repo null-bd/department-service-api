@@ -21,7 +21,7 @@ type Router struct {
 	config         *config.Config
 }
 
-func NewRouter(logger logger.Logger, cfg *config.Config, h *rest.IHealthHandler) (*Router, error) {
+func NewRouter(logger logger.Logger, cfg *config.Config, healthhandler *rest.IHealthHandler, deptHandler *rest.IDepartmentHandler) (*Router, error) {
 	// Load auth config
 	authConfig := loadAuthConfig(cfg)
 
@@ -56,8 +56,8 @@ func NewRouter(logger logger.Logger, cfg *config.Config, h *rest.IHealthHandler)
 	router.Use(authMiddleware.Authenticate())
 
 	// Setup routes
-	setupHealthRoutes(router, *h)
-	setupAPIRoutes(router, h, resourceMatcher)
+	setupHealthRoutes(router, *healthhandler)
+	setupAPIRoutes(router, *deptHandler, resourceMatcher)
 
 	return &Router{
 		engine:         router,
@@ -102,14 +102,17 @@ func (r *Router) Run() error {
 	return r.engine.Run(r.config.App.GetAddress())
 }
 
-func setupAPIRoutes(router *gin.Engine, h *rest.IHealthHandler, resourceMatcher *authn.ResourceMatcher) {
-	// v1 := router.Group("/api/v1")
+func setupAPIRoutes(router *gin.Engine, deptHandler rest.IDepartmentHandler, resourceMatcher *authn.ResourceMatcher) {
+	v1 := router.Group("/api/v1")
 	{
-		// Example Resources routes with authl
-		// TODO: Update the routes for service
-		// resources := v1.Group("/resources")
+		departments := v1.Group("/departments")
 		{
-			// resources.GET("", h.GetResources)
+			// resources.GET("", deptHandler.GetDepartment)
+			//departments.POST("", deptHandler.CreateDepartment)
+			departments.GET("", deptHandler.ListDepartments)
+			departments.GET("/:deptId", deptHandler.GetDepartment)
+			//departments.PUT("/:deptId", deptHandler.UpdateDepartment)
+			//departments.DELETE("/:deptId", deptHandler.DeleteDepartment)
 		}
 	}
 }
