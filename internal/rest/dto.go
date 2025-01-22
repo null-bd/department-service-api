@@ -13,21 +13,15 @@ type OperatingHoursDTO struct {
 	Holidays string `json:"holidays"`
 }
 
-type ContactInfoDTO struct {
-	Email   string `json:"email" binding:"required,email"`
-	Phone   string `json:"phone" binding:"required"`
-	Address string `json:"address" binding:"required"`
-}
-
 type CreateDepartmentRequest struct {
 	Name               string                 `json:"name" binding:"required"`
 	Code               string                 `json:"code" binding:"required,uppercase"`
-	Type               string                 `json:"type" binding:"required,oneof=hospital clinic laboratory medical"`
+	Type               string                 `json:"type" binding:"required,oneof=medical surgical diagnostic emergency administrative support"`
 	Specialty          []string               `json:"specialty"`
 	ParentDepartmentID string                 `json:"parentDepartmentId"`
-	Status             string                 `json:"status" binding:"required,oneof=active inactive"`
 	Capacity           CapacityDTO            `json:"capacity"`
 	OperatingHours     OperatingHoursDTO      `json:"operatingHours"`
+	DepartmentHeadID   string                 `json:"departmentHeadId"`
 	Metadata           map[string]interface{} `json:"metadata"`
 }
 

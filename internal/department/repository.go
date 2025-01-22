@@ -39,7 +39,7 @@ func NewDepartmentRepository(db *pgxpool.Pool, logger logger.Logger) IDepartment
 
 const (
 	createDeptQuery = `
-	    INSERT INTO department (
+	    INSERT INTO departments (
 			id, branch_id, organization_id, name, code, type, specialty, 
 			parent_department_id, status, capacity_total_beds, capacity_available_beds, 
 			capacity_operating_rooms, operating_hours_weekday, operating_hours_weekend, 
@@ -47,7 +47,7 @@ const (
 			metadata, created_at, updated_at
 		) VALUES (
 			$1, $2, $3, $4, $5, $6, 
-			$7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $18
+			$7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $19
 		) RETURNING id`
 
 	listDeptBaseQuery = `
@@ -71,7 +71,6 @@ const (
 		WHERE id = $1 AND deleted_at IS NULL`
 
 	getDeptByCodeQuery = `
-		SELECT 
 			SELECT 
 			id, branch_id, organization_id, name, code, type, specialty, 
 			parent_department_id, status, capacity_total_beds, capacity_available_beds, 

@@ -25,7 +25,6 @@ type Department struct {
 	Name               string
 	Code               string
 	Type               string
-	Description        string
 	Specialty          []string
 	ParentDepartmentID string
 	Status             string

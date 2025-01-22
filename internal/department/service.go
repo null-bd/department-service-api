@@ -45,9 +45,11 @@ func (s *departmentService) CreateDepartment(ctx context.Context, dept *Departme
 
 	// Set required fields
 	dept.ID = uuid.New().String()
+	dept.BranchID = uuid.New().String()
+	dept.OrganizationID = uuid.New().String()
 	dept.Status = "inactive"
 
-	// Create organization
+	// Create department
 	createdDept, err := s.repo.Create(ctx, dept)
 	if err != nil {
 		return nil, err
