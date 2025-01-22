@@ -31,7 +31,7 @@ func (s *departmentService) CreateDepartment(ctx context.Context, dept *Departme
 	s.log.Info("service : CreateDepartment : begin", nil)
 
 	// Check if organization exists
-	existingdept, err := s.repo.GetByID(ctx, dept.ID)
+	existingdept, err := s.repo.GetByCode(ctx, dept.Code)
 	if err != nil {
 		return nil, err
 	}
