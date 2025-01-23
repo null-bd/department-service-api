@@ -13,6 +13,7 @@ type IDepartmentService interface {
 	CreateDepartment(ctx context.Context, dept *Department) (*Department, error)
 	GetDepartment(ctx context.Context, id string) (*Department, error)
 	ListDepartments(ctx context.Context, branchId string, filter map[string]interface{}, page, limit int) ([]*Department, *Pagination, error)
+	UpdateDepartment(ctx context.Context, dept *Department) (*Department, error)
 }
 
 type departmentService struct {
@@ -88,4 +89,28 @@ func (s *departmentService) ListDepartments(ctx context.Context, branchId string
 
 	s.log.Info("service : ListDepartments : exit", nil)
 	return departments, pagination, nil
+}
+
+func (s *departmentService) UpdateDepartment(ctx context.Context, dept *Department) (*Department, error) {
+	s.log.Info("service : UpdateDepartment : begin", nil)
+
+	existing, err := s.repo.GetByID(ctx, dept.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	dept.Code = existing.Code
+	dept.CreatedAt = existing.CreatedAt
+
+	err = s.repo.Update(ctx, dept)
+	if err != nil {
+		return nil, err
+	}
+	updated, err := s.repo.GetByID(ctx, dept.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	s.log.Info("service : UpdateDepartment : exit", nil)
+	return updated, nil
 }

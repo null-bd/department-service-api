@@ -14,6 +14,7 @@ type IDepartmentHandler interface {
 	CreateDepartment(c *gin.Context)
 	GetDepartment(c *gin.Context)
 	ListDepartments(c *gin.Context)
+	UpdateDepartment(c *gin.Context)
 }
 
 type departmentHandler struct {
@@ -107,4 +108,45 @@ func (h *departmentHandler) ListDepartments(c *gin.Context) {
 		"pagination": pagination,
 	})
 	h.log.Info("handler : ListDepartments : exit", nil)
+}
+
+func (h *departmentHandler) UpdateDepartment(c *gin.Context) {
+	h.log.Info("handler : UpdateDepartment : begin", nil)
+
+	id := c.Param("id")
+	if id == "" {
+		HandleError(c, errors.New(errors.ErrBadRequest, "missing department id", nil))
+		return
+	}
+
+	var req UpdateDepartmentRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		HandleError(c, errors.New(errors.ErrBadRequest, "invalid request body", err))
+		return
+	}
+
+	// Create domain object from request
+	dept := &department.Department{
+		ID:                 id,
+		Name:               req.Name,
+		Type:               req.Type,
+		Status:             req.Status,
+		BranchID:           req.BranchID,
+		OrganizationID:     req.OrganizationID,
+		Code:               req.Code,
+		Specialty:          req.Specialty,
+		ParentDepartmentID: req.ParentDepartmentID,
+		Capacity:           department.Capacity(req.Capacity),
+		OperatingHours:     department.OperatingHours(req.OperatingHours),
+		Metadata:           req.Metadata,
+	}
+
+	result, err := h.deptSvc.UpdateDepartment(c.Request.Context(), dept)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, ToDepartmentResponse(result))
+	h.log.Info("handler : UpdateDepartment : exit", nil)
 }

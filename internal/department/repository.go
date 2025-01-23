@@ -20,6 +20,7 @@ type (
 		GetByID(ctx context.Context, id string) (*Department, error)
 		GetByCode(ctx context.Context, code string) (*Department, error)
 		List(ctx context.Context, branchId string, filter map[string]interface{}, page, limit int) ([]*Department, int, error)
+		Update(ctx context.Context, dept *Department) error
 	}
 
 	departmentRepository struct {
@@ -79,6 +80,23 @@ const (
 			metadata, created_at, updated_at
 		FROM departments
 		WHERE code = $1 AND deleted_at IS NULL`
+
+	updateDeptQuery = `
+		UPDATE departments 
+		SET 
+			name = $1,
+			code = $2,
+			type = $3,
+			specialty = $4,
+			branchId = $5,
+			organizationId = $6,
+			parentDepartmentId = $7,
+			status = $8,
+			capacity = $9,
+			operatingHours = $10,
+			metadata = $11,
+			updated_at = $12,
+		WHERE id = $13 AND deleted_at IS NULL`
 
 	countDeptQuery = `
 		SELECT COUNT(*) 
@@ -315,4 +333,39 @@ func (r *departmentRepository) List(ctx context.Context, branchId string, filter
 
 	r.log.Debug("repository : List : exit", nil)
 	return depts, total, nil
+}
+
+func (r *departmentRepository) Update(ctx context.Context, dept *Department) error {
+	r.log.Debug("repository : Update : begin", nil)
+
+	now := time.Now().UTC()
+
+	_, err := r.db.Exec(ctx, updateDeptQuery,
+		dept.Name,
+		dept.Code,
+		dept.Type,
+		dept.Status,
+		dept.Specialty,
+		dept.BranchID,
+		dept.OrganizationID,
+		dept.ParentDepartmentID,
+		dept.Capacity.TotalBeds,
+		dept.Capacity.AvailableBeds,
+		dept.Capacity.OperatingRooms,
+		dept.OperatingHours.Weekday,
+		dept.OperatingHours.Weekend,
+		dept.OperatingHours.Timezone,
+		dept.OperatingHours.Holidays,
+		dept.Metadata,
+		now,
+		dept.ID,
+	)
+	if err != nil {
+		return errors.New(errors.ErrDatabaseOperation, "database error", err)
+	}
+
+	dept.UpdatedAt = now.Format(time.RFC3339)
+
+	r.log.Debug("repository : Update : exit", nil)
+	return nil
 }
