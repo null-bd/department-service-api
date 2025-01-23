@@ -11,7 +11,6 @@ func ToDepartment(req *CreateDepartmentRequest) *department.Department {
 		Type:               req.Type,
 		Specialty:          req.Specialty,
 		ParentDepartmentID: req.ParentDepartmentID,
-		Status:             req.Status,
 		Capacity: department.Capacity{
 			TotalBeds:      req.Capacity.TotalBeds,
 			AvailableBeds:  req.Capacity.AvailableBeds,
@@ -23,7 +22,8 @@ func ToDepartment(req *CreateDepartmentRequest) *department.Department {
 			Timezone: req.OperatingHours.Timezone,
 			Holidays: req.OperatingHours.Holidays,
 		},
-		Metadata: req.Metadata,
+		DepartmentHeadID: req.DepartmentHeadID,
+		Metadata:         req.Metadata,
 	}
 }
 

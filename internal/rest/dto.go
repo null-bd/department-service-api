@@ -22,12 +22,13 @@ type ContactInfoDTO struct {
 type CreateDepartmentRequest struct {
 	Name               string                 `json:"name" binding:"required"`
 	Code               string                 `json:"code" binding:"required,uppercase"`
-	Type               string                 `json:"type" binding:"required,oneof=hospital clinic laboratory medical"`
+	Type               string                 `json:"type" binding:"required,oneof=medical surgical diagnostic emergency administrative support"`
 	Specialty          []string               `json:"specialty"`
-	ParentDepartmentID string                 `json:"parentDepartmentId"`
+	ParentDepartmentID *string                `json:"parentDepartmentId"`
 	Status             string                 `json:"status" binding:"required,oneof=active inactive"`
 	Capacity           CapacityDTO            `json:"capacity"`
 	OperatingHours     OperatingHoursDTO      `json:"operatingHours"`
+	DepartmentHeadID   *string                `json:"departmentHeadId"`
 	Metadata           map[string]interface{} `json:"metadata"`
 }
 
@@ -39,11 +40,11 @@ type ListDepartmentResponse struct {
 	Code               string                 `json:"code"`
 	Type               string                 `json:"type"`
 	Specialty          []string               `json:"specialty"`
-	ParentDepartmentID string                 `json:"parentDepartmentId"`
+	ParentDepartmentID *string                `json:"parentDepartmentId"`
 	Status             string                 `json:"status"`
 	Capacity           CapacityDTO            `json:"capacity"`
 	OperatingHours     OperatingHoursDTO      `json:"operatingHours"`
-	DepartmentHeadID   string                 `json:"departmentheadID"`
+	DepartmentHeadID   *string                `json:"departmentheadID"`
 	Metadata           map[string]interface{} `json:"metadata,omitempty"`
 	CreatedAt          string                 `json:"createdAt"`
 	UpdatedAt          string                 `json:"updatedAt"`

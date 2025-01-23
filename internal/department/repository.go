@@ -39,7 +39,7 @@ func NewDepartmentRepository(db *pgxpool.Pool, logger logger.Logger) IDepartment
 
 const (
 	createDeptQuery = `
-	    INSERT INTO department (
+	    INSERT INTO departments (
 			id, branch_id, organization_id, name, code, type, specialty, 
 			parent_department_id, status, capacity_total_beds, capacity_available_beds, 
 			capacity_operating_rooms, operating_hours_weekday, operating_hours_weekend, 
@@ -47,7 +47,7 @@ const (
 			metadata, created_at, updated_at
 		) VALUES (
 			$1, $2, $3, $4, $5, $6, 
-			$7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $18
+			$7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $19
 		) RETURNING id`
 
 	listDeptBaseQuery = `
@@ -71,15 +71,14 @@ const (
 		WHERE id = $1 AND deleted_at IS NULL`
 
 	getDeptByCodeQuery = `
-		SELECT 
-			SELECT 
+		SELECT  
 			id, branch_id, organization_id, name, code, type, specialty, 
-			parent_department_id, status, capacity_total_beds, capacity_available_beds, 
-			capacity_operating_rooms, operating_hours_weekday, operating_hours_weekend, 
-			operating_hours_timezone, operating_hours_holidays, department_head_id,
-			metadata, created_at, updated_at
+    		parent_department_id, status, capacity_total_beds, capacity_available_beds, 
+    		capacity_operating_rooms, operating_hours_weekday, operating_hours_weekend, 
+    		operating_hours_timezone, operating_hours_holidays, department_head_id,
+    		metadata, created_at, updated_at
 		FROM departments
-		WHERE code = $1 AND deleted_at IS NULL`
+        WHERE code = $1 AND deleted_at IS NULL`
 
 	countDeptQuery = `
 		SELECT COUNT(*) 
@@ -208,7 +207,7 @@ func (r *departmentRepository) GetByCode(ctx context.Context, code string) (*Dep
 	)
 	if err != nil {
 		if stderr.Is(err, pgx.ErrNoRows) {
-			return nil, nil
+			return nil, nil // No department found
 		}
 		return nil, errors.New(errors.ErrDatabaseOperation, "database error", err)
 	}
