@@ -26,11 +26,11 @@ type Department struct {
 	Code               string
 	Type               string
 	Specialty          []string
-	ParentDepartmentID *string
+	ParentDepartmentID string
 	Status             string
 	Capacity           Capacity
 	OperatingHours     OperatingHours
-	DepartmentHeadID   *string
+	DepartmentHeadID   string
 	Metadata           map[string]interface{}
 	CreatedAt          string
 	UpdatedAt          string

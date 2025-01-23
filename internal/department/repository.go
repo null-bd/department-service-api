@@ -71,7 +71,8 @@ const (
 		WHERE id = $1 AND deleted_at IS NULL`
 
 	getDeptByCodeQuery = `
-		SELECT  
+		SELECT 
+			SELECT 
 			id, branch_id, organization_id, name, code, type, specialty, 
     		parent_department_id, status, capacity_total_beds, capacity_available_beds, 
     		capacity_operating_rooms, operating_hours_weekday, operating_hours_weekend, 
