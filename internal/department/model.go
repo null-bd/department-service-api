@@ -1,7 +1,5 @@
 package department
 
-import "time"
-
 type Capacity struct {
 	TotalBeds      int
 	AvailableBeds  int
@@ -28,15 +26,15 @@ type Department struct {
 	Code               string
 	Type               string
 	Specialty          []string
-	ParentDepartmentID string
+	ParentDepartmentID *string
 	Status             string
 	Capacity           Capacity
 	OperatingHours     OperatingHours
-	DepartmentHeadID   string
+	DepartmentHeadID   *string
 	Metadata           map[string]interface{}
-	CreatedAt          time.Time
-	UpdatedAt          time.Time
-	DeletedAt          time.Time
+	CreatedAt          string
+	UpdatedAt          string
+	DeletedAt          string
 }
 
 type Pagination struct {
@@ -48,4 +46,10 @@ type Pagination struct {
 type DepartmentListResponse struct {
 	Data       []Department
 	Pagination Pagination
+}
+
+type ContactInfo struct {
+	Email   string
+	Phone   string
+	Address string
 }

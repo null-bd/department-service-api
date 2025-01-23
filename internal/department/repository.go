@@ -18,6 +18,7 @@ type (
 	IDepartmentRepository interface {
 		Create(ctx context.Context, dept *Department) (*Department, error)
 		GetByID(ctx context.Context, id string) (*Department, error)
+		GetByCode(ctx context.Context, code string) (*Department, error)
 		List(ctx context.Context, branchId string, filter map[string]interface{}, page, limit int) ([]*Department, int, error)
 	}
 
@@ -38,7 +39,7 @@ func NewDepartmentRepository(db *pgxpool.Pool, logger logger.Logger) IDepartment
 
 const (
 	createDeptQuery = `
-		INSERT INTO departments(
+	    INSERT INTO departments (
 			id, branch_id, organization_id, name, code, type, specialty, 
 			parent_department_id, status, capacity_total_beds, capacity_available_beds, 
 			capacity_operating_rooms, operating_hours_weekday, operating_hours_weekend, 
@@ -46,11 +47,8 @@ const (
 			metadata, created_at, updated_at
 		) VALUES (
 			$1, $2, $3, $4, $5, $6, 
-			$7, $8, $9, $10, $11, $12, 
-			$13, $14, $15, $16, $17, $18,
-			$19, $19 
-		) RETURNING id
-	`
+			$7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $19
+		) RETURNING id`
 
 	listDeptBaseQuery = `
 		SELECT 
@@ -72,49 +70,58 @@ const (
 		FROM departments
 		WHERE id = $1 AND deleted_at IS NULL`
 
+	getDeptByCodeQuery = `
+			SELECT 
+			id, branch_id, organization_id, name, code, type, specialty, 
+			parent_department_id, status, capacity_total_beds, capacity_available_beds, 
+			capacity_operating_rooms, operating_hours_weekday, operating_hours_weekend, 
+			operating_hours_timezone, operating_hours_holidays, department_head_id,
+			metadata, created_at, updated_at
+		FROM departments
+		WHERE code = $1 AND deleted_at IS NULL`
+
 	countDeptQuery = `
 		SELECT COUNT(*) 
 		FROM departments 
 		WHERE deleted_at IS NULL`
 )
 
-func (r *departmentRepository) Create(ctx context.Context, d *Department) (*Department, error) {
+func (r *departmentRepository) Create(ctx context.Context, dept *Department) (*Department, error) {
 	r.log.Debug("repository : Create : begin", nil)
 	now := time.Now().UTC()
 
-	// Insert Department
 	_, err := r.db.Exec(ctx, createDeptQuery,
-		d.ID,
-		d.BranchID,
-		d.OrganizationID,
-		d.Name,
-		d.Code,
-		d.Type,
-		d.Specialty,
-		d.ParentDepartmentID,
-		d.Status,
-		d.Capacity.TotalBeds,
-		d.Capacity.AvailableBeds,
-		d.Capacity.OperatingRooms,
-		d.OperatingHours.Weekday,
-		d.OperatingHours.Weekend,
-		d.OperatingHours.Timezone,
-		d.OperatingHours.Holidays,
-		d.DepartmentHeadID,
-		d.Metadata,
+		&dept.ID,
+		&dept.BranchID,
+		&dept.OrganizationID,
+		&dept.Name,
+		&dept.Code,
+		&dept.Type,
+		&dept.Specialty,
+		&dept.ParentDepartmentID,
+		&dept.Status,
+		&dept.Capacity.TotalBeds,
+		&dept.Capacity.AvailableBeds,
+		&dept.Capacity.OperatingRooms,
+		&dept.OperatingHours.Weekday,
+		&dept.OperatingHours.Weekend,
+		&dept.OperatingHours.Timezone,
+		&dept.OperatingHours.Holidays,
+		&dept.DepartmentHeadID,
+		&dept.Metadata,
 		now.Format(time.RFC3339),
 	)
 	if err != nil {
 		return nil, errors.New(errors.ErrDatabaseOperation, "database error", err)
 	}
 
-	createdDepartment, err := r.GetByID(ctx, d.ID)
+	createdDept, err := r.GetByID(ctx, dept.ID)
 	if err != nil {
 		return nil, err
 	}
 
 	r.log.Debug("repository : Create : exit", nil)
-	return createdDepartment, nil
+	return createdDept, nil
 }
 
 func (r *departmentRepository) GetByID(ctx context.Context, id string) (*Department, error) {
@@ -126,7 +133,7 @@ func (r *departmentRepository) GetByID(ctx context.Context, id string) (*Departm
 		Metadata:       make(map[string]interface{}),
 	}
 
-	//var createdAt, updatedAt time.Time
+	var createdAt, updatedAt time.Time
 
 	err := r.db.QueryRow(ctx, getDeptByIDQuery, id).Scan(
 		&dept.ID,
@@ -147,8 +154,8 @@ func (r *departmentRepository) GetByID(ctx context.Context, id string) (*Departm
 		&dept.OperatingHours.Holidays,
 		&dept.DepartmentHeadID,
 		&dept.Metadata,
-		&dept.CreatedAt,
-		&dept.UpdatedAt,
+		&createdAt,
+		&updatedAt,
 	)
 
 	if err != nil {
@@ -158,10 +165,57 @@ func (r *departmentRepository) GetByID(ctx context.Context, id string) (*Departm
 		return nil, errors.New(errors.ErrDatabaseOperation, "database error", err)
 	}
 
-	// org.CreatedAt = createdAt.Format(time.RFC3339)
-	// org.UpdatedAt = updatedAt.Format(time.RFC3339)
+	dept.CreatedAt = createdAt.Format(time.RFC3339)
+	dept.UpdatedAt = updatedAt.Format(time.RFC3339)
 
 	r.log.Debug("repository : GetByID : exit", logger.Fields{"department": dept})
+	return dept, nil
+}
+
+func (r *departmentRepository) GetByCode(ctx context.Context, code string) (*Department, error) {
+	r.log.Debug("repository : GetByCode : begin", nil)
+
+	dept := &Department{
+		OperatingHours: OperatingHours{},
+		Capacity:       Capacity{},
+		Metadata:       make(map[string]interface{}),
+	}
+
+	var createdAt, updatedAt time.Time
+
+	err := r.db.QueryRow(ctx, getDeptByCodeQuery, code).Scan(
+		&dept.ID,
+		&dept.BranchID,
+		&dept.OrganizationID,
+		&dept.Name,
+		&dept.Code,
+		&dept.Type,
+		&dept.Specialty,
+		&dept.ParentDepartmentID,
+		&dept.Status,
+		&dept.Capacity.TotalBeds,
+		&dept.Capacity.AvailableBeds,
+		&dept.Capacity.OperatingRooms,
+		&dept.OperatingHours.Weekday,
+		&dept.OperatingHours.Weekend,
+		&dept.OperatingHours.Timezone,
+		&dept.OperatingHours.Holidays,
+		&dept.DepartmentHeadID,
+		&dept.Metadata,
+		&createdAt,
+		&updatedAt,
+	)
+	if err != nil {
+		if stderr.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, errors.New(errors.ErrDatabaseOperation, "database error", err)
+	}
+
+	dept.CreatedAt = createdAt.Format(time.RFC3339)
+	dept.UpdatedAt = updatedAt.Format(time.RFC3339)
+
+	r.log.Debug("repository : GetByCode : exit", nil)
 	return dept, nil
 }
 
@@ -221,7 +275,7 @@ func (r *departmentRepository) List(ctx context.Context, branchId string, filter
 			OperatingHours: OperatingHours{},
 			Metadata:       make(map[string]interface{}),
 		}
-		//var createdAt, updatedAt time.Time
+		var createdAt, updatedAt time.Time
 
 		err := rows.Scan(
 			&dept.ID,
@@ -242,16 +296,16 @@ func (r *departmentRepository) List(ctx context.Context, branchId string, filter
 			&dept.OperatingHours.Holidays,
 			&dept.DepartmentHeadID,
 			&dept.Metadata,
-			&dept.CreatedAt,
-			&dept.UpdatedAt,
+			&createdAt,
+			&updatedAt,
 		)
 
 		if err != nil {
 			return nil, 0, errors.New(errors.ErrDatabaseOperation, "database error3", err)
 		}
 
-		// dept.CreatedAt = createdAt.Format(time.RFC3339)
-		// dept.UpdatedAt = updatedAt.Format(time.RFC3339)
+		dept.CreatedAt = createdAt.Format(time.RFC3339)
+		dept.UpdatedAt = updatedAt.Format(time.RFC3339)
 		depts = append(depts, dept)
 	}
 

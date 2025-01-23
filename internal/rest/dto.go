@@ -1,7 +1,5 @@
 package rest
 
-import "time"
-
 type CapacityDTO struct {
 	TotalBeds      int `json:"totalBeds"`
 	AvailableBeds  int `json:"availableBeds"`
@@ -15,10 +13,16 @@ type OperatingHoursDTO struct {
 	Holidays string `json:"holidays"`
 }
 
-type ContactInfoDTO struct {
-	Email   string `json:"email" binding:"required,email"`
-	Phone   string `json:"phone" binding:"required"`
-	Address string `json:"address" binding:"required"`
+type CreateDepartmentRequest struct {
+	Name               string                 `json:"name" binding:"required"`
+	Code               string                 `json:"code" binding:"required,uppercase"`
+	Type               string                 `json:"type" binding:"required,oneof=medical surgical diagnostic emergency administrative support"`
+	Specialty          []string               `json:"specialty"`
+	ParentDepartmentID *string                `json:"parentDepartmentId"`
+	Capacity           CapacityDTO            `json:"capacity"`
+	OperatingHours     OperatingHoursDTO      `json:"operatingHours"`
+	DepartmentHeadID   *string                `json:"departmentHeadId"`
+	Metadata           map[string]interface{} `json:"metadata"`
 }
 
 type ListDepartmentResponse struct {
@@ -29,15 +33,15 @@ type ListDepartmentResponse struct {
 	Code               string                 `json:"code"`
 	Type               string                 `json:"type"`
 	Specialty          []string               `json:"specialty"`
-	ParentDepartmentID string                 `json:"parentDepartmentId"`
+	ParentDepartmentID *string                `json:"parentDepartmentId"`
 	Status             string                 `json:"status"`
 	Capacity           CapacityDTO            `json:"capacity"`
 	OperatingHours     OperatingHoursDTO      `json:"operatingHours"`
-	DepartmentHeadID   string                 `json:"departmentheadID"`
+	DepartmentHeadID   *string                `json:"departmentheadID"`
 	Metadata           map[string]interface{} `json:"metadata,omitempty"`
-	CreatedAt          time.Time              `json:"createdAt"`
-	UpdatedAt          time.Time              `json:"updatedAt"`
-	DeletedAt          time.Time              `json:"deletedAt"`
+	CreatedAt          string                 `json:"createdAt"`
+	UpdatedAt          string                 `json:"updatedAt"`
+	DeletedAt          string                 `json:"deletedAt"`
 }
 
 type Pagination struct {

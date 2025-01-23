@@ -4,6 +4,29 @@ import (
 	"github.com/null-bd/department-service-api/internal/department"
 )
 
+func ToDepartment(req *CreateDepartmentRequest) *department.Department {
+	return &department.Department{
+		Name:               req.Name,
+		Code:               req.Code,
+		Type:               req.Type,
+		Specialty:          req.Specialty,
+		ParentDepartmentID: req.ParentDepartmentID,
+		Capacity: department.Capacity{
+			TotalBeds:      req.Capacity.TotalBeds,
+			AvailableBeds:  req.Capacity.AvailableBeds,
+			OperatingRooms: req.Capacity.OperatingRooms,
+		},
+		OperatingHours: department.OperatingHours{
+			Weekday:  req.OperatingHours.Weekday,
+			Weekend:  req.OperatingHours.Weekend,
+			Timezone: req.OperatingHours.Timezone,
+			Holidays: req.OperatingHours.Holidays,
+		},
+		DepartmentHeadID: req.DepartmentHeadID,
+		Metadata:         req.Metadata,
+	}
+}
+
 func ToDepartmentResponse(dept *department.Department) *ListDepartmentResponse {
 	return &ListDepartmentResponse{
 		ID:                 dept.ID,

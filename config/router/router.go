@@ -26,7 +26,7 @@ func NewRouter(logger logger.Logger, cfg *config.Config, healthhandler *rest.IHe
 	authConfig := loadAuthConfig(cfg)
 
 	// Initialize permission callback
-	permCallback := func(deptId, branchId, role string) []string {
+	permCallback := func(orgId, branchId, role string) []string {
 		// Customize this based on your needs
 		return nil
 	}
@@ -108,7 +108,7 @@ func setupAPIRoutes(router *gin.Engine, deptHandler rest.IDepartmentHandler, res
 		departments := v1.Group("/departments")
 		{
 			// resources.GET("", deptHandler.GetDepartment)
-			//departments.POST("", deptHandler.CreateDepartment)
+			departments.POST("", deptHandler.CreateDepartment)
 			departments.GET("", deptHandler.ListDepartments)
 			departments.GET("/:deptId", deptHandler.GetDepartment)
 			//departments.PUT("/:deptId", deptHandler.UpdateDepartment)
