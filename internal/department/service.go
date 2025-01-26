@@ -60,14 +60,14 @@ func (s *departmentService) CreateDepartment(ctx context.Context, dept *Departme
 }
 
 func (s *departmentService) GetDepartment(ctx context.Context, id string) (*Department, error) {
-	s.log.Info("service : GetDepatment : begin", logger.Fields{"id": id})
+	s.log.Info("service : GetDepartment : begin", logger.Fields{"id": id})
 
 	dept, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	s.log.Info("service : GetDepatment : exit", nil)
+	s.log.Info("service : GetDepartment : exit", nil)
 	return dept, nil
 }
 

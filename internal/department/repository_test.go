@@ -2,7 +2,10 @@ package department
 
 import (
 	"context"
+	"testing"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/null-bd/department-service-api/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -14,6 +17,13 @@ type RepositoryTestSuite struct {
 	suite.Suite
 	tc   *testutil.TestContainer
 	repo IDepartmentRepository
+}
+
+func TestRepositorySuite(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping integration test")
+	}
+	suite.Run(t, new(RepositoryTestSuite))
 }
 
 func (s *RepositoryTestSuite) SetupSuite() {
@@ -39,7 +49,7 @@ func (s *RepositoryTestSuite) TearDownSuite() {
 
 func (s *RepositoryTestSuite) SetupTest() {
 	ctx := context.Background()
-	_, err := s.tc.Pool.Exec(ctx, "TRUNCATE departments")
+	_, err := s.tc.Pool.Exec(ctx, "DELETE FROM departments")
 	require.NoError(s.T(), err)
 }
 
@@ -100,24 +110,23 @@ func (s *RepositoryTestSuite) createSchema(ctx context.Context) error {
 	return err
 }
 
-func stringPtr(s string) *string {
-	return &s
-}
+// func stringPtr(s string) *string {
+// 	return &s
+// }
 
-func (s *RepositoryTestSuite) TestGetbyID() {
+func (s *RepositoryTestSuite) TestGetByID() {
 	//arrange
 
 	ctx := context.Background()
 	dept := &Department{
-		ID:                 "test ID",
-		BranchID:           "test BranchID",
-		OrganizationID:     "test OrganizationID",
-		Name:               "Test Department",
-		Code:               "TESTDEPT001",
-		Type:               "hospital",
-		Specialty:          []string{"test specialty"},
-		ParentDepartmentID: stringPtr("test ParentDepartmentID"),
-		Status:             "active",
+		ID:             uuid.New().String(),
+		BranchID:       uuid.New().String(),
+		OrganizationID: uuid.New().String(),
+		Name:           "Test Department",
+		Code:           "TEST001",
+		Type:           "medical",
+		// ParentDepartmentID: stringPtr(uuid.New().String()),
+		Status: "active",
 		Capacity: Capacity{
 			TotalBeds:      0,
 			AvailableBeds:  0,
@@ -129,7 +138,7 @@ func (s *RepositoryTestSuite) TestGetbyID() {
 			Timezone: "UTC+0",
 			Holidays: "09:00-13:00",
 		},
-		DepartmentHeadID: stringPtr("test DepartmentHeadID"),
+		// DepartmentHeadID: stringPtr(uuid.New().String()),
 	}
 
 	_, err := s.repo.Create(ctx, dept)
@@ -145,44 +154,121 @@ func (s *RepositoryTestSuite) TestGetbyID() {
 	assert.Equal(s.T(), dept.Code, result.Code)
 }
 
-// func (s *RepositoryTestSuite) TestList() {
-// 	// Arrange
-// 	ctx := context.Background()
+func (s *RepositoryTestSuite) TestList() {
+	// Arrange
+	ctx := context.Background()
 
-// 	// Create test data
-// 	depts := []*Department{
-// 		{
-// 			ID:       uuid.New().String(),
-// 			BranchID: uuid.New().String(),
-// 			Name:     "Hospital 1",
-// 			Code:     "TEST003",
-// 			Type:     "hospital",
-// 			Status:   "active",
-// 		},
-// 		{
-// 			ID:       uuid.New().String(),
-// 			BranchID: uuid.New().String(),
-// 			Name:     "Hospital 2",
-// 			Code:     "TEST004",
-// 			Type:     "hospital",
-// 			Status:   "active",
-// 		},
-// 	}
+	// Create test data
+	depts := []*Department{
+		{
+			ID:             uuid.New().String(),
+			BranchID:       "8f822ed4-b3c8-4539-99d5-28c4f16be1ce",
+			OrganizationID: uuid.New().String(),
+			Name:           "Test Department1",
+			Code:           "TEST001",
+			Type:           "medical",
+			Status:         "active",
+			Capacity: Capacity{
+				TotalBeds:      0,
+				AvailableBeds:  0,
+				OperatingRooms: 0,
+			},
+			OperatingHours: OperatingHours{
+				Weekday:  "09:00-17:00",
+				Weekend:  "10:00-14:00",
+				Timezone: "UTC+0",
+				Holidays: "09:00-13:00",
+			},
+		},
+		{
+			ID:             uuid.New().String(),
+			BranchID:       "8f822ed4-b3c8-4539-99d5-28c4f16be1ce",
+			OrganizationID: uuid.New().String(),
+			Name:           "Test Department2",
+			Code:           "TEST002",
+			Type:           "medical",
+			Status:         "active",
+			Capacity: Capacity{
+				TotalBeds:      0,
+				AvailableBeds:  0,
+				OperatingRooms: 0,
+			},
+			OperatingHours: OperatingHours{
+				Weekday:  "09:00-17:00",
+				Weekend:  "10:00-14:00",
+				Timezone: "UTC+0",
+				Holidays: "09:00-13:00",
+			},
+		},
+	}
 
-// 	for _, dept := range depts {
-// 		_, err := s.repo.Create(ctx, dept)
-// 		require.NoError(s.T(), err)
-// 	}
+	for _, dept := range depts {
+		_, err := s.repo.Create(ctx, dept)
+		require.NoError(s.T(), err)
+	}
 
-// 	// Act
-// 	filter := map[string]interface{}{
-// 		"status": "active",
-// 		"type":   "hospital",
-// 	}
-// 	results, total, err := s.repo.List(ctx, depts.BranchID, filter, 1, 10)
+	// Act
+	filter := map[string]interface{}{
+		"status": "active",
+		"type":   "medical",
+	}
+	results, total, err := s.repo.List(ctx, "8f822ed4-b3c8-4539-99d5-28c4f16be1ce", filter, 1, 10)
 
-// 	// Assert
-// 	assert.NoError(s.T(), err)
-// 	assert.GreaterOrEqual(s.T(), len(results), 2)
-// 	assert.GreaterOrEqual(s.T(), total, 2)
-// }
+	// Assert
+	assert.NoError(s.T(), err)
+	assert.GreaterOrEqual(s.T(), len(results), 2)
+	assert.GreaterOrEqual(s.T(), total, 2)
+
+	for _, result := range results {
+		assert.Equal(s.T(), "active", result.Status)
+		assert.Equal(s.T(), "medical", result.Type)
+	}
+}
+
+func (s *RepositoryTestSuite) TestCreate() {
+
+	//Arrange
+	ctx := context.Background()
+	now := time.Now().UTC()
+	dept := &Department{
+		ID:             uuid.New().String(),
+		BranchID:       uuid.New().String(),
+		OrganizationID: uuid.New().String(),
+		Name:           "Test Department",
+		Code:           "TEST001",
+		Type:           "medical",
+		// ParentDepartmentID: stringPtr(uuid.New().String()),
+		Status: "active",
+		Capacity: Capacity{
+			TotalBeds:      0,
+			AvailableBeds:  0,
+			OperatingRooms: 0,
+		},
+		OperatingHours: OperatingHours{
+			Weekday:  "09:00-17:00",
+			Weekend:  "10:00-14:00",
+			Timezone: "UTC+0",
+			Holidays: "09:00-13:00",
+		},
+		// DepartmentHeadID: stringPtr(uuid.New().String()),
+		CreatedAt: now.Format(time.RFC3339),
+		UpdatedAt: now.Format(time.RFC3339),
+	}
+
+	// Act
+	result, err := s.repo.Create(ctx, dept)
+
+	// Assert
+	assert.NoError(s.T(), err)
+	assert.NotEmpty(s.T(), result.CreatedAt)
+	assert.NotEmpty(s.T(), result.UpdatedAt)
+
+	// Verify in database
+	var count int
+	err = s.tc.Pool.QueryRow(ctx, "SELECT COUNT(*) FROM departments WHERE id = $1", dept.ID).Scan(&count)
+	assert.NoError(s.T(), err)
+	assert.Equal(s.T(), 1, count)
+	_, err = s.repo.Create(ctx, dept)
+	assert.Error(s.T(), err)
+
+}
