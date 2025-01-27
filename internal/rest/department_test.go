@@ -96,6 +96,7 @@ func TestGetDepartment(t *testing.T) {
 			id:   "non-existent-id",
 			setupMocks: func() {
 				mockLog.On("Info", "handler : GetDepartment : begin", mock.Anything).Return()
+				mockLog.On("Info", "handler : GetDepartment : exit", mock.Anything).Return()
 
 				mockDeptSvc.On("GetDepartment", mock.Anything, "non-existent-id").Return(
 					nil, errors.New(errors.ErrDeptNotFound, "department not found", nil))
