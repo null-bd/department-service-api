@@ -97,7 +97,7 @@ func (h *departmentHandler) ListDepartments(c *gin.Context) {
 	}
 
 	// Convert domain objects to response DTOs
-	responses := make([]*ListDepartmentResponse, len(departments))
+	responses := make([]*DepartmentResponse, len(departments))
 	for i, dept := range departments {
 		responses[i] = ToDepartmentResponse(dept)
 	}

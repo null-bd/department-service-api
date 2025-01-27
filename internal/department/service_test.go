@@ -10,6 +10,145 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+func TestDepartmentService_GetDepartment(t *testing.T) {
+	tests := []struct {
+		name        string
+		id          string
+		setupMocks  func(*mockRepository, *mockLogger)
+		checkResult func(*testing.T, *Department, error)
+	}{
+		{
+			name: "Success - Get Department",
+			id:   "test-id-1",
+			setupMocks: func(repo *mockRepository, logger *mockLogger) {
+				logger.On("Info", "service : GetDepartment : begin", mock.Anything).Return()
+				logger.On("Info", "service : GetDepartment : exit", mock.Anything).Return()
+
+				repo.On("GetByID", mock.Anything, "test-id-1").Return(&Department{
+					ID:     "test-id-1",
+					Name:   "Test Department",
+					Code:   "TEST001",
+					Status: "active",
+				}, nil)
+			},
+			checkResult: func(t *testing.T, result *Department, err error) {
+				assert.NoError(t, err)
+				assert.NotNil(t, result)
+				assert.Equal(t, "test-id-1", result.ID)
+			},
+		},
+		{
+			name: "Error - Department Not Found",
+			id:   "non-existent-id",
+			setupMocks: func(repo *mockRepository, logger *mockLogger) {
+				logger.On("Info", "service : GetDepartment : begin", mock.Anything).Return()
+
+				repo.On("GetByID", mock.Anything, "non-existent-id").
+					Return(nil, errors.New(errors.ErrDeptNotFound, "Department not found", nil))
+			},
+			checkResult: func(t *testing.T, result *Department, err error) {
+				assert.Nil(t, result)
+				assert.Error(t, err)
+				appErr, ok := err.(*errors.AppError)
+				assert.True(t, ok)
+				assert.Equal(t, errors.ErrDeptNotFound, appErr.Code)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := new(mockRepository)
+			logger := new(mockLogger)
+			tt.setupMocks(repo, logger)
+
+			service := NewDepartmentService(repo, logger)
+			result, err := service.GetDepartment(context.Background(), tt.id)
+
+			tt.checkResult(t, result, err)
+			repo.AssertExpectations(t)
+			logger.AssertExpectations(t)
+		})
+	}
+}
+func TestDepartmentService_ListDepartments(t *testing.T) {
+	tests := []struct {
+		name        string
+		branchId    string
+		setupMocks  func(*mockRepository, *mockLogger)
+		checkResult func(*testing.T, []*Department, *Pagination, error)
+	}{
+		{
+			name:     "Success - List Department",
+			branchId: "test-branch-id-1",
+			setupMocks: func(repo *mockRepository, logger *mockLogger) {
+				logger.On("Info", "service : ListDepartments : begin", mock.Anything).Return()
+				logger.On("Info", "service : ListDepartments : exit", mock.Anything).Return()
+
+				repo.On("List", mock.Anything, "test-branch-id-1", mock.Anything, 1, 10).Return([]*Department{
+					{
+						ID:     "test-id-1",
+						Name:   "Test Department1",
+						Code:   "TEST001",
+						Status: "active",
+						Type:   "medical",
+					},
+					{
+						ID:     "test-id-2",
+						Name:   "Test Department2",
+						Code:   "TEST002",
+						Status: "active",
+						Type:   "medical",
+					},
+				}, 2, nil)
+			},
+			checkResult: func(t *testing.T, result []*Department, pagination *Pagination, err error) {
+				assert.NoError(t, err)
+				assert.NotNil(t, result)
+				assert.NotNil(t, pagination)
+				assert.Equal(t, 2, pagination.Total)
+			},
+		},
+		{
+			name:     "Error - Department Not Found",
+			branchId: "non-existent-branch-id",
+			setupMocks: func(repo *mockRepository, logger *mockLogger) {
+				logger.On("Info", "service : ListDepartments : begin", mock.Anything).Return()
+
+				repo.On("List", mock.Anything, "non-existent-branch-id", mock.Anything, 1, 10).
+					Return(nil, 0, errors.New(errors.ErrDeptNotFound, "Department not found", nil))
+			},
+			checkResult: func(t *testing.T, result []*Department, pagination *Pagination, err error) {
+				assert.Nil(t, result)
+				assert.Error(t, err)
+				appErr, ok := err.(*errors.AppError)
+				assert.True(t, ok)
+				assert.Equal(t, errors.ErrDeptNotFound, appErr.Code)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := new(mockRepository)
+			logger := new(mockLogger)
+			tt.setupMocks(repo, logger)
+
+			filter := map[string]interface{}{
+				"status": "active",
+				"type":   "medical",
+			}
+			service := NewDepartmentService(repo, logger)
+			result, pagination, err := service.ListDepartments(context.Background(), tt.branchId, filter, 1, 10)
+
+			tt.checkResult(t, result, pagination, err)
+
+			repo.AssertExpectations(t)
+			logger.AssertExpectations(t)
+		})
+	}
+}
+
 func TestDepartmentService_CreateDepartment(t *testing.T) {
 	tests := []struct {
 		name        string
@@ -142,143 +281,6 @@ func TestDepartmentService_CreateDepartment(t *testing.T) {
 			tt.checkResult(t, result, err)
 
 			// Verify mock expectations
-			repo.AssertExpectations(t)
-			logger.AssertExpectations(t)
-		})
-	}
-}
-
-func TestDepartmentService_GetDepartment(t *testing.T) {
-	tests := []struct {
-		name        string
-		id          string
-		setupMocks  func(*mockRepository, *mockLogger)
-		checkResult func(*testing.T, *Department, error)
-	}{
-		{
-			name: "Success - Get Department",
-			id:   "test-id-1",
-			setupMocks: func(repo *mockRepository, logger *mockLogger) {
-				logger.On("Info", "service : GetDepartment : begin", mock.Anything).Return()
-				logger.On("Info", "service : GetDepartment : exit", mock.Anything).Return()
-
-				repo.On("GetByID", mock.Anything, "test-id-1").Return(&Department{
-					ID:     "test-id-1",
-					Name:   "Test Department",
-					Code:   "TEST001",
-					Status: "active",
-				}, nil)
-			},
-			checkResult: func(t *testing.T, result *Department, err error) {
-				assert.NoError(t, err)
-				assert.NotNil(t, result)
-				assert.Equal(t, "test-id-1", result.ID)
-			},
-		},
-		{
-			name: "Error - Department Not Found",
-			id:   "non-existent-id",
-			setupMocks: func(repo *mockRepository, logger *mockLogger) {
-				logger.On("Info", "service : GetDepartment : begin", mock.Anything).Return()
-
-				repo.On("GetByID", mock.Anything, "non-existent-id").
-					Return(nil, errors.New(errors.ErrDeptNotFound, "Department not found", nil))
-			},
-			checkResult: func(t *testing.T, result *Department, err error) {
-				assert.Nil(t, result)
-				assert.Error(t, err)
-				appErr, ok := err.(*errors.AppError)
-				assert.True(t, ok)
-				assert.Equal(t, errors.ErrDeptNotFound, appErr.Code)
-			},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			repo := new(mockRepository)
-			logger := new(mockLogger)
-			tt.setupMocks(repo, logger)
-
-			service := NewDepartmentService(repo, logger)
-			result, err := service.GetDepartment(context.Background(), tt.id)
-
-			tt.checkResult(t, result, err)
-			repo.AssertExpectations(t)
-			logger.AssertExpectations(t)
-		})
-	}
-}
-func TestDepartmentService_ListDepartments(t *testing.T) {
-	tests := []struct {
-		name        string
-		branchId    string
-		setupMocks  func(*mockRepository, *mockLogger)
-		checkResult func(*testing.T, []*Department, *Pagination, error)
-	}{
-		{
-			name:     "Success - List Department",
-			branchId: "test-branch-id-1",
-			setupMocks: func(repo *mockRepository, logger *mockLogger) {
-				logger.On("Info", "service : ListDepartments : begin", mock.Anything).Return()
-				logger.On("Info", "service : ListDepartments : exit", mock.Anything).Return()
-
-				repo.On("List", mock.Anything, "test-branch-id-1", mock.Anything, 1, 10).Return([]*Department{
-					{
-						ID:     "test-id-1",
-						Name:   "Test Department1",
-						Code:   "TEST001",
-						Status: "active",
-						Type:   "medical",
-					},
-					{
-						ID:     "test-id-2",
-						Name:   "Test Department2",
-						Code:   "TEST002",
-						Status: "active",
-						Type:   "medical",
-					},
-				}, 2, nil)
-			},
-			checkResult: func(t *testing.T, result []*Department, pagination *Pagination, err error) {
-				assert.NoError(t, err)
-				assert.NotNil(t, result)
-				assert.NotNil(t, pagination)
-				assert.Equal(t, 2, pagination.Total)
-			},
-		},
-		{
-			name:     "Error - Department Not Found",
-			branchId: "non-existent-branch-id",
-			setupMocks: func(repo *mockRepository, logger *mockLogger) {
-				logger.On("Info", "service : ListDepartments : begin", mock.Anything).Return()
-
-				repo.On("List", mock.Anything, "non-existent-branch-id", mock.Anything, 1, 10).
-					Return(nil, 0, errors.New(errors.ErrDeptNotFound, "Department not found", nil))
-			},
-			checkResult: func(t *testing.T, result []*Department, pagination *Pagination, err error) {
-				assert.Nil(t, result)
-				assert.Error(t, err)
-				assert.Equal(t, "Department not found", err.Error())
-			},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			repo := new(mockRepository)
-			logger := new(mockLogger)
-			tt.setupMocks(repo, logger)
-
-			filter := map[string]interface{}{
-				"status": "active",
-				"type":   "medical",
-			}
-			service := NewDepartmentService(repo, logger)
-			result, pagination, err := service.ListDepartments(context.Background(), tt.branchId, filter, 1, 10)
-
-			tt.checkResult(t, result, pagination, err)
-
 			repo.AssertExpectations(t)
 			logger.AssertExpectations(t)
 		})
