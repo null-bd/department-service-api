@@ -27,6 +27,8 @@ auth:
       roles: ["ADMIN", "ORG_ADMIN", "USER"]
       actions: ["read:departments"]
   publicPaths:
+    - path: "/api/v1/departments"
+      method: "POST"
     - path: "/health"
       method: "GET"
     - path: "/api/v1/departments"

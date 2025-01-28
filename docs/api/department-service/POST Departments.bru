@@ -1,0 +1,38 @@
+meta {
+  name: POST Departments
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{host}}/api/v1/departments
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "Cardiology",
+    "code": "CARD005",
+    "type": "medical",
+    "specialty": [
+      "cardiology",
+      "vascular"
+    ],
+    "status": "active",
+    "capacity": {
+      "totalBeds": 0,
+      "availableBeds": 0,
+      "operatingRooms": 0
+    },
+    "operatingHours": {
+      "weekday": "09:00-17:00",
+      "weekend": "10:00-14:00",
+      "timezone": "UTC+0",
+      "holidays": "09:00-13:00"
+    },
+    "metadata": {
+      "additionalProp1": {}
+    }
+  }
+}
