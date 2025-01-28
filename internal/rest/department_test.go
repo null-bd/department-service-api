@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -129,6 +130,102 @@ func TestGetDepartment(t *testing.T) {
 	}
 }
 
+func TestListDepartments(t *testing.T) {
+
+	router, mockDeptSvc, mockLog := setupTest(t)
+
+	tests := []struct {
+		name           string
+		branchId       string
+		setupMocks     func()
+		expectedStatus int
+		checkResponse  func(*testing.T, *httptest.ResponseRecorder)
+	}{
+		{
+			name:     "Success",
+			branchId: "test-branch-id-1",
+			setupMocks: func() {
+				mockLog.On("Info", "handler : ListDepartments : begin", mock.Anything).Return()
+				mockLog.On("Info", "handler : ListDepartments : exit", mock.Anything).Return()
+
+				expectedFilter := map[string]interface{}{
+					"status": "active",
+					"type":   "medical",
+				}
+
+				pagination := &department.Pagination{
+					Total: 2,
+					Page:  1,
+					Pages: 1,
+				}
+
+				mockDeptSvc.On("ListDepartments", mock.Anything, "test-branch-id-1", expectedFilter, 1, 20).Return(
+					[]*department.Department{
+						{
+							ID:     "test-id-1",
+							Name:   "Test Department1",
+							Code:   "TEST001",
+							Status: "active",
+							Type:   "medical",
+						},
+						{
+							ID:     "test-id-2",
+							Name:   "Test Department2",
+							Code:   "TEST002",
+							Status: "active",
+							Type:   "medical",
+						},
+					}, pagination, nil)
+			},
+			expectedStatus: http.StatusOK,
+			checkResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
+				var response map[string]interface{}
+				err := json.Unmarshal(w.Body.Bytes(), &response)
+				assert.NoError(t, err)
+
+				data := response["data"].([]interface{})
+				assert.Equal(t, 2, len(data))
+
+			},
+		},
+		{
+			name:     "Not Found",
+			branchId: "non-existent-id",
+			setupMocks: func() {
+				mockLog.On("Info", "handler : ListDepartments : begin", mock.Anything).Return()
+
+				mockDeptSvc.On("ListDepartments", mock.Anything, "non-existent-id", mock.Anything, 1, 20).Return(
+					[]*department.Department{}, &department.Pagination{}, errors.New(errors.ErrDeptNotFound, "department not found", nil))
+			},
+			expectedStatus: http.StatusNotFound,
+			checkResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
+
+				var response map[string]interface{}
+				err := json.Unmarshal(w.Body.Bytes(), &response)
+				assert.NoError(t, err)
+				assert.Equal(t, string(errors.ErrDeptNotFound), response["code"])
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.setupMocks()
+
+			url := fmt.Sprintf("/departments?branchId=%s&status=active&type=medical", tt.branchId)
+			req, _ := http.NewRequest("GET", url, nil)
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+
+			assert.Equal(t, tt.expectedStatus, w.Code)
+			tt.checkResponse(t, w)
+
+			mockDeptSvc.AssertExpectations(t)
+			mockLog.AssertExpectations(t)
+		})
+	}
+}
+
 func TestCreateDepartment(t *testing.T) {
 	router, mockDeptSvc, mockLog := setupTest(t)
 
@@ -167,53 +264,6 @@ func TestCreateDepartment(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, expectedDept.ID, response.ID)
 	assert.Equal(t, inputDTO.Name, response.Name)
-
-	mockDeptSvc.AssertExpectations(t)
-	mockLog.AssertExpectations(t)
-}
-
-func TestListDepartments(t *testing.T) {
-	router, mockDeptSvc, mockLog := setupTest(t)
-
-	mockLog.On("Info", "handler : ListDepartments : begin", mock.Anything).Return()
-	mockLog.On("Info", "handler : ListDepartments : exit", mock.Anything).Return()
-
-	depts := []*department.Department{
-		{
-			ID:     "test-id-1",
-			Name:   "Test Department 1",
-			Code:   "TEST001",
-			Status: "active",
-		},
-		{
-			ID:     "test-id-2",
-			Name:   "Test Department 2",
-			Code:   "TEST002",
-			Status: "inactive",
-		},
-	}
-
-	pagination := &department.Pagination{
-		Total: 2,
-		Page:  1,
-		Pages: 1,
-	}
-
-	expectedFilter := map[string]interface{}{"status": "active"}
-	mockDeptSvc.On("ListDepartments", mock.Anything, expectedFilter, 1, 20).Return(depts, pagination, nil)
-
-	req, _ := http.NewRequest("GET", "/Departments?status=active", nil)
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-
-	assert.Equal(t, http.StatusOK, w.Code)
-
-	var response map[string]interface{}
-	err := json.Unmarshal(w.Body.Bytes(), &response)
-	assert.NoError(t, err)
-
-	data := response["data"].([]interface{})
-	assert.Equal(t, 2, len(data))
 
 	mockDeptSvc.AssertExpectations(t)
 	mockLog.AssertExpectations(t)

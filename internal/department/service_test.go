@@ -85,28 +85,41 @@ func TestDepartmentService_ListDepartments(t *testing.T) {
 				logger.On("Info", "service : ListDepartments : begin", mock.Anything).Return()
 				logger.On("Info", "service : ListDepartments : exit", mock.Anything).Return()
 
-				repo.On("List", mock.Anything, "test-branch-id-1", mock.Anything, 1, 10).Return([]*Department{
+				expectedFilter := map[string]interface{}{
+					"status": "active",
+					"type":   "medical",
+				}
+
+				repo.On("List", mock.Anything, "test-branch-id-1", expectedFilter, 1, 10).Return([]*Department{
 					{
-						ID:     "test-id-1",
-						Name:   "Test Department1",
-						Code:   "TEST001",
-						Status: "active",
-						Type:   "medical",
+						ID:       "test-id-1",
+						BranchID: "test-branch-id-1",
+						Name:     "Test Department1",
+						Code:     "TEST001",
+						Status:   "active",
+						Type:     "medical",
 					},
 					{
-						ID:     "test-id-2",
-						Name:   "Test Department2",
-						Code:   "TEST002",
-						Status: "active",
-						Type:   "medical",
+						ID:       "test-id-2",
+						BranchID: "test-branch-id-1",
+						Name:     "Test Department2",
+						Code:     "TEST002",
+						Status:   "active",
+						Type:     "medical",
 					},
 				}, 2, nil)
 			},
+
 			checkResult: func(t *testing.T, result []*Department, pagination *Pagination, err error) {
 				assert.NoError(t, err)
 				assert.NotNil(t, result)
+				assert.GreaterOrEqual(t, len(result), 2)
 				assert.NotNil(t, pagination)
 				assert.Equal(t, 2, pagination.Total)
+				for _, dept := range result {
+					assert.Equal(t, "active", dept.Status)
+					assert.Equal(t, "medical", dept.Type)
+				}
 			},
 		},
 		{
