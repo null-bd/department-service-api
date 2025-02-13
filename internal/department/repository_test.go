@@ -200,6 +200,26 @@ func (s *RepositoryTestSuite) TestList() {
 				Holidays: "09:00-13:00",
 			},
 		},
+		{
+			ID:             uuid.New().String(),
+			BranchID:       "8f822ed4-b3c8-4539-99d5-28c4f16be1ce",
+			OrganizationID: uuid.New().String(),
+			Name:           "Test Department3",
+			Code:           "TEST003",
+			Type:           "medical",
+			Status:         "active",
+			Capacity: Capacity{
+				TotalBeds:      0,
+				AvailableBeds:  0,
+				OperatingRooms: 0,
+			},
+			OperatingHours: OperatingHours{
+				Weekday:  "09:00-17:00",
+				Weekend:  "10:00-14:00",
+				Timezone: "UTC+0",
+				Holidays: "09:00-13:00",
+			},
+		},
 	}
 
 	for _, dept := range depts {
@@ -212,14 +232,24 @@ func (s *RepositoryTestSuite) TestList() {
 		"status": "active",
 		"type":   "medical",
 	}
-	results, total, err := s.repo.List(ctx, "8f822ed4-b3c8-4539-99d5-28c4f16be1ce", filter, 1, 10)
+
+	resultsPage1, total, err := s.repo.List(ctx, "8f822ed4-b3c8-4539-99d5-28c4f16be1ce", filter, 1, 2)
+	require.NoError(s.T(), err)
+	resultsPage2, _, err := s.repo.List(ctx, "8f822ed4-b3c8-4539-99d5-28c4f16be1ce", filter, 2, 1)
 
 	// Assert
 	assert.NoError(s.T(), err)
-	assert.GreaterOrEqual(s.T(), len(results), 2)
-	assert.GreaterOrEqual(s.T(), total, 2)
+	assert.Equal(s.T(), len(depts), total)
+	assert.Equal(s.T(), total, 3)
 
-	for _, result := range results {
+	assert.Equal(s.T(), 2, len(resultsPage1))
+	for _, result := range resultsPage1 {
+		assert.Equal(s.T(), "active", result.Status)
+		assert.Equal(s.T(), "medical", result.Type)
+	}
+
+	assert.Equal(s.T(), 1, len(resultsPage2))
+	for _, result := range resultsPage2 {
 		assert.Equal(s.T(), "active", result.Status)
 		assert.Equal(s.T(), "medical", result.Type)
 	}
