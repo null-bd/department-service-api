@@ -71,7 +71,7 @@ func TestDepartmentService_GetDepartment(t *testing.T) {
 		})
 	}
 }
-func TestDepartmentService_ListDepartments(t *testing.T) {
+func TestDepartmentService_ListDepartment(t *testing.T) {
 	tests := []struct {
 		name        string
 		branchId    string
@@ -82,8 +82,8 @@ func TestDepartmentService_ListDepartments(t *testing.T) {
 			name:     "Success - List Department",
 			branchId: "test-branch-id-1",
 			setupMocks: func(repo *mockRepository, logger *mockLogger) {
-				logger.On("Info", "service : ListDepartments : begin", mock.Anything).Return()
-				logger.On("Info", "service : ListDepartments : exit", mock.Anything).Return()
+				logger.On("Info", "service : ListDepartment : begin", mock.Anything).Return()
+				logger.On("Info", "service : ListDepartment : exit", mock.Anything).Return()
 
 				expectedFilter := map[string]interface{}{
 					"status": "active",
@@ -113,7 +113,7 @@ func TestDepartmentService_ListDepartments(t *testing.T) {
 			checkResult: func(t *testing.T, result []*Department, pagination *Pagination, err error) {
 				assert.NoError(t, err)
 				assert.NotNil(t, result)
-				assert.GreaterOrEqual(t, len(result), 2)
+				assert.Equal(t, len(result), 2)
 				assert.NotNil(t, pagination)
 				assert.Equal(t, 2, pagination.Total)
 				for _, dept := range result {
@@ -126,7 +126,7 @@ func TestDepartmentService_ListDepartments(t *testing.T) {
 			name:     "Error - Department Not Found",
 			branchId: "non-existent-branch-id",
 			setupMocks: func(repo *mockRepository, logger *mockLogger) {
-				logger.On("Info", "service : ListDepartments : begin", mock.Anything).Return()
+				logger.On("Info", "service : ListDepartment : begin", mock.Anything).Return()
 
 				repo.On("List", mock.Anything, "non-existent-branch-id", mock.Anything, 1, 10).
 					Return(nil, 0, errors.New(errors.ErrDeptNotFound, "Department not found", nil))
@@ -152,7 +152,7 @@ func TestDepartmentService_ListDepartments(t *testing.T) {
 				"type":   "medical",
 			}
 			service := NewDepartmentService(repo, logger)
-			result, pagination, err := service.ListDepartments(context.Background(), tt.branchId, filter, 1, 10)
+			result, pagination, err := service.ListDepartment(context.Background(), tt.branchId, filter, 1, 10)
 
 			tt.checkResult(t, result, pagination, err)
 

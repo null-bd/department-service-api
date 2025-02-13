@@ -12,7 +12,7 @@ import (
 type IDepartmentService interface {
 	CreateDepartment(ctx context.Context, dept *Department) (*Department, error)
 	GetDepartment(ctx context.Context, id string) (*Department, error)
-	ListDepartments(ctx context.Context, branchId string, filter map[string]interface{}, page, limit int) ([]*Department, *Pagination, error)
+	ListDepartment(ctx context.Context, branchId string, filter map[string]interface{}, page, limit int) ([]*Department, *Pagination, error)
 }
 
 type departmentService struct {
@@ -71,8 +71,8 @@ func (s *departmentService) GetDepartment(ctx context.Context, id string) (*Depa
 	return dept, nil
 }
 
-func (s *departmentService) ListDepartments(ctx context.Context, branchId string, filter map[string]interface{}, page, limit int) ([]*Department, *Pagination, error) {
-	s.log.Info("service : ListDepartments : begin", logger.Fields{"branchId": branchId})
+func (s *departmentService) ListDepartment(ctx context.Context, branchId string, filter map[string]interface{}, page, limit int) ([]*Department, *Pagination, error) {
+	s.log.Info("service : ListDepartment : begin", logger.Fields{"branchId": branchId})
 
 	departments, total, err := s.repo.List(ctx, branchId, filter, page, limit)
 	if err != nil {
@@ -86,6 +86,6 @@ func (s *departmentService) ListDepartments(ctx context.Context, branchId string
 		Pages: pages,
 	}
 
-	s.log.Info("service : ListDepartments : exit", nil)
+	s.log.Info("service : ListDepartment : exit", nil)
 	return departments, pagination, nil
 }

@@ -28,7 +28,7 @@ func (m *mockDeptSvc) GetDepartment(ctx context.Context, id string) (*department
 	return args.Get(0).(*department.Department), args.Error(1)
 }
 
-func (m *mockDeptSvc) ListDepartments(ctx context.Context, branchId string, filter map[string]interface{}, page, limit int) ([]*department.Department, *department.Pagination, error) {
+func (m *mockDeptSvc) ListDepartment(ctx context.Context, branchId string, filter map[string]interface{}, page, limit int) ([]*department.Department, *department.Pagination, error) {
 	args := m.Called(ctx, branchId, filter, page, limit)
 	return args.Get(0).([]*department.Department), args.Get(1).(*department.Pagination), args.Error(2)
 }
@@ -52,7 +52,7 @@ func setupTest(t *testing.T) (*gin.Engine, *mockDeptSvc, *mockLogger) {
 
 	router := gin.New()
 	router.POST("/departments", handler.CreateDepartment)
-	router.GET("/departments", handler.ListDepartments)
+	router.GET("/departments", handler.ListDepartment)
 	router.GET("/departments/:deptId", handler.GetDepartment)
 
 	return router, mockDeptSvc, mockLog
@@ -130,7 +130,7 @@ func TestGetDepartment(t *testing.T) {
 	}
 }
 
-func TestListDepartments(t *testing.T) {
+func TestListDepartment(t *testing.T) {
 
 	router, mockDeptSvc, mockLog := setupTest(t)
 
@@ -145,8 +145,8 @@ func TestListDepartments(t *testing.T) {
 			name:     "Success",
 			branchId: "test-branch-id-1",
 			setupMocks: func() {
-				mockLog.On("Info", "handler : ListDepartments : begin", mock.Anything).Return()
-				mockLog.On("Info", "handler : ListDepartments : exit", mock.Anything).Return()
+				mockLog.On("Info", "handler : ListDepartment : begin", mock.Anything).Return()
+				mockLog.On("Info", "handler : ListDepartment : exit", mock.Anything).Return()
 
 				expectedFilter := map[string]interface{}{
 					"status": "active",
@@ -159,7 +159,7 @@ func TestListDepartments(t *testing.T) {
 					Pages: 1,
 				}
 
-				mockDeptSvc.On("ListDepartments", mock.Anything, "test-branch-id-1", expectedFilter, 1, 20).Return(
+				mockDeptSvc.On("ListDepartment", mock.Anything, "test-branch-id-1", expectedFilter, 1, 20).Return(
 					[]*department.Department{
 						{
 							ID:     "test-id-1",
@@ -192,9 +192,9 @@ func TestListDepartments(t *testing.T) {
 			name:     "Not Found",
 			branchId: "non-existent-id",
 			setupMocks: func() {
-				mockLog.On("Info", "handler : ListDepartments : begin", mock.Anything).Return()
+				mockLog.On("Info", "handler : ListDepartment : begin", mock.Anything).Return()
 
-				mockDeptSvc.On("ListDepartments", mock.Anything, "non-existent-id", mock.Anything, 1, 20).Return(
+				mockDeptSvc.On("ListDepartment", mock.Anything, "non-existent-id", mock.Anything, 1, 20).Return(
 					[]*department.Department{}, &department.Pagination{}, errors.New(errors.ErrDeptNotFound, "department not found", nil))
 			},
 			expectedStatus: http.StatusNotFound,
