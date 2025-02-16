@@ -11,8 +11,9 @@ import (
 )
 
 type IDepartmentHandler interface {
+	CreateDepartment(c *gin.Context)
 	GetDepartment(c *gin.Context)
-	ListDepartments(c *gin.Context)
+	ListDepartment(c *gin.Context)
 }
 
 type departmentHandler struct {
@@ -25,6 +26,26 @@ func NewDepartmentHandler(deptSvc department.IDepartmentService, logger logger.L
 		deptSvc: deptSvc,
 		log:     logger,
 	}
+}
+
+func (h *departmentHandler) CreateDepartment(c *gin.Context) {
+	h.log.Info("handler : CreateDepartment : begin", nil)
+
+	var req CreateDepartmentRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		HandleError(c, errors.New(errors.ErrBadRequest, "invalid request body", err))
+		return
+	}
+
+	dept := ToDepartment(&req)
+	result, err := h.deptSvc.CreateDepartment(c.Request.Context(), dept)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusCreated, ToDepartmentResponse(result))
+	h.log.Info("handler : CreateDepartment : exit", nil)
 }
 
 func (h *departmentHandler) GetDepartment(c *gin.Context) {
@@ -46,8 +67,8 @@ func (h *departmentHandler) GetDepartment(c *gin.Context) {
 	h.log.Info("handler : GetDepartment : exit", nil)
 }
 
-func (h *departmentHandler) ListDepartments(c *gin.Context) {
-	h.log.Info("handler : ListDepartments : begin", nil)
+func (h *departmentHandler) ListDepartment(c *gin.Context) {
+	h.log.Info("handler : ListDepartment : begin", nil)
 
 	branchId := c.Query("branchId")
 	if branchId == "" {
@@ -69,14 +90,14 @@ func (h *departmentHandler) ListDepartments(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
 
-	departments, pagination, err := h.deptSvc.ListDepartments(c.Request.Context(), branchId, filter, page, limit)
+	departments, pagination, err := h.deptSvc.ListDepartment(c.Request.Context(), branchId, filter, page, limit)
 	if err != nil {
 		HandleError(c, err)
 		return
 	}
 
 	// Convert domain objects to response DTOs
-	responses := make([]*ListDepartmentResponse, len(departments))
+	responses := make([]*DepartmentResponse, len(departments))
 	for i, dept := range departments {
 		responses[i] = ToDepartmentResponse(dept)
 	}
@@ -85,5 +106,5 @@ func (h *departmentHandler) ListDepartments(c *gin.Context) {
 		"data":       responses,
 		"pagination": pagination,
 	})
-	h.log.Info("handler : ListDepartments : exit", nil)
+	h.log.Info("handler : ListDepartment : exit", nil)
 }

@@ -2,13 +2,17 @@ package department
 
 import (
 	"context"
+	stderr "errors"
 
+	"github.com/google/uuid"
+	"github.com/null-bd/department-service-api/internal/errors"
 	"github.com/null-bd/logger"
 )
 
 type IDepartmentService interface {
+	CreateDepartment(ctx context.Context, dept *Department) (*Department, error)
 	GetDepartment(ctx context.Context, id string) (*Department, error)
-	ListDepartments(ctx context.Context, branchId string, filter map[string]interface{}, page, limit int) ([]*Department, *Pagination, error)
+	ListDepartment(ctx context.Context, branchId string, filter map[string]interface{}, page, limit int) ([]*Department, *Pagination, error)
 }
 
 type departmentService struct {
@@ -23,20 +27,52 @@ func NewDepartmentService(repo IDepartmentRepository, logger logger.Logger) IDep
 	}
 }
 
+func (s *departmentService) CreateDepartment(ctx context.Context, dept *Department) (*Department, error) {
+	s.log.Info("service : CreateDepartment : begin", nil)
+
+	// Check if organization exists
+	existingDept, err := s.repo.GetByCode(ctx, dept.Code)
+	if err != nil {
+		return nil, err
+	}
+	if existingDept != nil {
+		return nil, &errors.AppError{
+			Code:    errors.ErrDeptExists,
+			Message: "department with this code already exists",
+			Err:     stderr.New("department with this code already exists"),
+		}
+	}
+
+	// Set required fields
+	dept.ID = uuid.New().String()
+	dept.BranchID = uuid.New().String()
+	dept.OrganizationID = uuid.New().String()
+	dept.Status = "inactive"
+
+	// Create department
+	createdDept, err := s.repo.Create(ctx, dept)
+	if err != nil {
+		return nil, err
+	}
+
+	s.log.Info("service : CreateDepartment : exit", nil)
+	return createdDept, nil
+}
+
 func (s *departmentService) GetDepartment(ctx context.Context, id string) (*Department, error) {
-	s.log.Info("service : GetDepatment : begin", logger.Fields{"id": id})
+	s.log.Info("service : GetDepartment : begin", logger.Fields{"id": id})
 
 	dept, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	s.log.Info("service : GetDepatment : exit", nil)
+	s.log.Info("service : GetDepartment : exit", nil)
 	return dept, nil
 }
 
-func (s *departmentService) ListDepartments(ctx context.Context, branchId string, filter map[string]interface{}, page, limit int) ([]*Department, *Pagination, error) {
-	s.log.Info("service : ListDepartments : begin", logger.Fields{"branchId": branchId})
+func (s *departmentService) ListDepartment(ctx context.Context, branchId string, filter map[string]interface{}, page, limit int) ([]*Department, *Pagination, error) {
+	s.log.Info("service : ListDepartment : begin", logger.Fields{"branchId": branchId})
 
 	departments, total, err := s.repo.List(ctx, branchId, filter, page, limit)
 	if err != nil {
@@ -50,6 +86,6 @@ func (s *departmentService) ListDepartments(ctx context.Context, branchId string
 		Pages: pages,
 	}
 
-	s.log.Info("service : ListDepartments : exit", nil)
+	s.log.Info("service : ListDepartment : exit", nil)
 	return departments, pagination, nil
 }

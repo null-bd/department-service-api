@@ -5,7 +5,41 @@ meta {
 }
 
 get {
-  url: {{host}}/api/v1/departments/3fa85f64-5717-4562-b3fc-2c963f66afa6
+  url: {{host}}/api/v1/departments/6ce4cfd3-81c8-401a-bbea-c8dea98ccc7e
   body: json
   auth: none
+}
+
+body:json {
+  {
+    "branchId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "organizationId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "name": "Cardiology",
+    "code": "CARD001",
+    "type": "medical",
+    "specialty": [
+      "cardiology",
+      "vascular"
+    ],
+    "parentDepartmentId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "status": "active",
+    "capacity": {
+      "totalBeds": 0,
+      "availableBeds": 0,
+      "operatingRooms": 0
+    },
+    "operatingHours": {
+      "weekday": "09:00-17:00",
+      "weekend": "10:00-14:00",
+      "timezone": "UTC+0",
+      "holidays": "09:00-13:00"
+    },
+    "staffing": {
+      "departmentHead": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "minStaffRequired": 1
+    },
+    "metadata": {
+      "additionalProp1": {}
+    }
+  }
 }

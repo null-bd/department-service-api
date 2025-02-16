@@ -16,7 +16,9 @@ import (
 
 type (
 	IDepartmentRepository interface {
+		Create(ctx context.Context, dept *Department) (*Department, error)
 		GetByID(ctx context.Context, id string) (*Department, error)
+		GetByCode(ctx context.Context, code string) (*Department, error)
 		List(ctx context.Context, branchId string, filter map[string]interface{}, page, limit int) ([]*Department, int, error)
 	}
 
@@ -36,6 +38,18 @@ func NewDepartmentRepository(db *pgxpool.Pool, logger logger.Logger) IDepartment
 // region SQL Queries
 
 const (
+	createDeptQuery = `
+	    INSERT INTO departments (
+			id, branch_id, organization_id, name, code, type, specialty, 
+			parent_department_id, status, capacity_total_beds, capacity_available_beds, 
+			capacity_operating_rooms, operating_hours_weekday, operating_hours_weekend, 
+			operating_hours_timezone, operating_hours_holidays, department_head_id,
+			metadata, created_at, updated_at
+		) VALUES (
+			$1, $2, $3, $4, $5, $6, 
+			$7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $19
+		) RETURNING id`
+
 	listDeptBaseQuery = `
 		SELECT 
 			id, branch_id, organization_id, name, code, type, specialty, 
@@ -56,11 +70,59 @@ const (
 		FROM departments
 		WHERE id = $1 AND deleted_at IS NULL`
 
+	getDeptByCodeQuery = `
+			SELECT 
+			id, branch_id, organization_id, name, code, type, specialty, 
+			parent_department_id, status, capacity_total_beds, capacity_available_beds, 
+			capacity_operating_rooms, operating_hours_weekday, operating_hours_weekend, 
+			operating_hours_timezone, operating_hours_holidays, department_head_id,
+			metadata, created_at, updated_at
+		FROM departments
+		WHERE code = $1 AND deleted_at IS NULL`
+
 	countDeptQuery = `
 		SELECT COUNT(*) 
 		FROM departments 
 		WHERE deleted_at IS NULL`
 )
+
+func (r *departmentRepository) Create(ctx context.Context, dept *Department) (*Department, error) {
+	r.log.Debug("repository : Create : begin", nil)
+	now := time.Now().UTC()
+
+	_, err := r.db.Exec(ctx, createDeptQuery,
+		&dept.ID,
+		&dept.BranchID,
+		&dept.OrganizationID,
+		&dept.Name,
+		&dept.Code,
+		&dept.Type,
+		&dept.Specialty,
+		&dept.ParentDepartmentID,
+		&dept.Status,
+		&dept.Capacity.TotalBeds,
+		&dept.Capacity.AvailableBeds,
+		&dept.Capacity.OperatingRooms,
+		&dept.OperatingHours.Weekday,
+		&dept.OperatingHours.Weekend,
+		&dept.OperatingHours.Timezone,
+		&dept.OperatingHours.Holidays,
+		&dept.DepartmentHeadID,
+		&dept.Metadata,
+		now.Format(time.RFC3339),
+	)
+	if err != nil {
+		return nil, errors.New(errors.ErrDatabaseOperation, "database error", err)
+	}
+
+	createdDept, err := r.GetByID(ctx, dept.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	r.log.Debug("repository : Create : exit", nil)
+	return createdDept, nil
+}
 
 func (r *departmentRepository) GetByID(ctx context.Context, id string) (*Department, error) {
 	r.log.Debug("repository : GetByID : begin", logger.Fields{"id": id})
@@ -107,6 +169,53 @@ func (r *departmentRepository) GetByID(ctx context.Context, id string) (*Departm
 	dept.UpdatedAt = updatedAt.Format(time.RFC3339)
 
 	r.log.Debug("repository : GetByID : exit", logger.Fields{"department": dept})
+	return dept, nil
+}
+
+func (r *departmentRepository) GetByCode(ctx context.Context, code string) (*Department, error) {
+	r.log.Debug("repository : GetByCode : begin", nil)
+
+	dept := &Department{
+		OperatingHours: OperatingHours{},
+		Capacity:       Capacity{},
+		Metadata:       make(map[string]interface{}),
+	}
+
+	var createdAt, updatedAt time.Time
+
+	err := r.db.QueryRow(ctx, getDeptByCodeQuery, code).Scan(
+		&dept.ID,
+		&dept.BranchID,
+		&dept.OrganizationID,
+		&dept.Name,
+		&dept.Code,
+		&dept.Type,
+		&dept.Specialty,
+		&dept.ParentDepartmentID,
+		&dept.Status,
+		&dept.Capacity.TotalBeds,
+		&dept.Capacity.AvailableBeds,
+		&dept.Capacity.OperatingRooms,
+		&dept.OperatingHours.Weekday,
+		&dept.OperatingHours.Weekend,
+		&dept.OperatingHours.Timezone,
+		&dept.OperatingHours.Holidays,
+		&dept.DepartmentHeadID,
+		&dept.Metadata,
+		&createdAt,
+		&updatedAt,
+	)
+	if err != nil {
+		if stderr.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, errors.New(errors.ErrDatabaseOperation, "database error", err)
+	}
+
+	dept.CreatedAt = createdAt.Format(time.RFC3339)
+	dept.UpdatedAt = updatedAt.Format(time.RFC3339)
+
+	r.log.Debug("repository : GetByCode : exit", nil)
 	return dept, nil
 }
 

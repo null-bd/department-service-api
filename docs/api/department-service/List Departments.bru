@@ -5,14 +5,11 @@ meta {
 }
 
 get {
-  url: {{host}}/api/v1/departments?branchId=8f822ed4-b3c8-4539-99d5-28c4f16be1ce&specialty={vascular}&type=medical&status=active
+  url: {{host}}/api/v1/departments?branchId=8f822ed4-b3c8-4539-99d5-28c4f16be1ce
   body: json
   auth: none
 }
 
 params:query {
   branchId: 8f822ed4-b3c8-4539-99d5-28c4f16be1ce
-  specialty: {vascular}
-  type: medical
-  status: active
 }
