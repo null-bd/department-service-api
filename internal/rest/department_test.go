@@ -41,6 +41,14 @@ func (m *mockDeptSvc) CreateDepartment(ctx context.Context, dept *department.Dep
 	return args.Get(0).(*department.Department), args.Error(1)
 }
 
+func (m *mockDeptSvc) UpdateDepartment(ctx context.Context, dept *department.Department) (*department.Department, error) {
+	args := m.Called(ctx, dept)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*department.Department), args.Error(1)
+}
+
 func setupTest(t *testing.T) (*gin.Engine, *mockDeptSvc, *mockLogger) {
 	t.Log("Setting up test")
 	gin.SetMode(gin.TestMode)
@@ -54,6 +62,7 @@ func setupTest(t *testing.T) (*gin.Engine, *mockDeptSvc, *mockLogger) {
 	router.POST("/departments", handler.CreateDepartment)
 	router.GET("/departments", handler.ListDepartment)
 	router.GET("/departments/:deptId", handler.GetDepartment)
+	router.PUT("/departments/:Id", handler.UpdateDepartment)
 
 	return router, mockDeptSvc, mockLog
 }
@@ -267,4 +276,121 @@ func TestCreateDepartment(t *testing.T) {
 
 	mockDeptSvc.AssertExpectations(t)
 	mockLog.AssertExpectations(t)
+}
+
+func TestUpdateDepartment(t *testing.T) {
+	router, mockDeptSvc, mockLog := setupTest(t)
+
+	tests := []struct {
+		name           string
+		id             string
+		input          UpdateDepartmentRequest
+		setupMocks     func()
+		expectedStatus int
+		checkResponse  func(*testing.T, *httptest.ResponseRecorder)
+	}{
+		{
+			name: "Success",
+			id:   "test-id-1",
+			input: UpdateDepartmentRequest{
+				Name:   "Updated Department",
+				Type:   "medical",
+				Status: "active",
+				Capacity: CapacityDTO{
+					TotalBeds:      100,
+					AvailableBeds:  50,
+					OperatingRooms: 5,
+				},
+			},
+			setupMocks: func() {
+				mockLog.On("Info", "handler : UpdateDepartment : begin", mock.Anything).Return()
+				mockLog.On("Info", "handler : UpdateDepartment : exit", mock.Anything).Return()
+
+				mockDeptSvc.On("UpdateDepartment", mock.Anything, mock.MatchedBy(func(dept *department.Department) bool {
+					return dept.ID == "test-id-1" && dept.Name == "Updated Department"
+				})).Return(&department.Department{
+					ID:     "test-id-1",
+					Name:   "Updated Department",
+					Status: "active",
+				}, nil)
+			},
+			expectedStatus: http.StatusOK,
+			checkResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
+				var response DepartmentResponse
+				err := json.Unmarshal(w.Body.Bytes(), &response)
+				assert.NoError(t, err)
+				assert.Equal(t, "Updated Department", response.Name)
+				assert.Equal(t, "active", response.Status)
+			},
+		},
+		{
+			name: "Not Found",
+			id:   "non-existent-id",
+			input: UpdateDepartmentRequest{
+				Name:   "Updated Department",
+				Type:   "medical",
+				Status: "active",
+				Capacity: CapacityDTO{
+					TotalBeds:      100,
+					AvailableBeds:  50,
+					OperatingRooms: 5,
+				},
+			},
+			setupMocks: func() {
+				mockLog.On("Info", "handler : UpdateDepartment : begin", mock.Anything).Return()
+
+				mockDeptSvc.On("UpdateDepartment", mock.Anything, mock.Anything).Return(
+					nil, errors.New(errors.ErrDeptNotFound, "department not found", nil))
+			},
+			expectedStatus: http.StatusNotFound,
+			checkResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
+				var response map[string]interface{}
+				err := json.Unmarshal(w.Body.Bytes(), &response)
+				assert.NoError(t, err)
+				assert.Equal(t, string(errors.ErrDeptNotFound), response["code"])
+			},
+		},
+		{
+			name: "Invalid Input",
+			id:   "test-id-1",
+			input: UpdateDepartmentRequest{
+				Name:   "Updated Department",
+				Type:   "invalid-type",
+				Status: "active",
+				Capacity: CapacityDTO{
+					TotalBeds:      100,
+					AvailableBeds:  50,
+					OperatingRooms: 5,
+				},
+			},
+			setupMocks: func() {
+				mockLog.On("Info", "handler : UpdateDepartment : begin", mock.Anything).Return()
+			},
+			expectedStatus: http.StatusBadRequest,
+			checkResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
+				var response map[string]interface{}
+				err := json.Unmarshal(w.Body.Bytes(), &response)
+				assert.NoError(t, err)
+				assert.Equal(t, string(errors.ErrBadRequest), response["code"])
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.setupMocks()
+
+			body, _ := json.Marshal(tt.input)
+			req, _ := http.NewRequest("PUT", "/departments/"+tt.id, bytes.NewBuffer(body))
+			req.Header.Set("Content-Type", "application/json")
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+
+			assert.Equal(t, tt.expectedStatus, w.Code)
+			tt.checkResponse(t, w)
+
+			mockDeptSvc.AssertExpectations(t)
+			mockLog.AssertExpectations(t)
+		})
+	}
 }

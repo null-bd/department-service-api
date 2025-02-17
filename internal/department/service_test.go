@@ -299,3 +299,87 @@ func TestDepartmentService_CreateDepartment(t *testing.T) {
 		})
 	}
 }
+
+func TestDepartmentService_UpdateDepartment(t *testing.T) {
+	tests := []struct {
+		name        string
+		input       *Department
+		setupMocks  func(*mockRepository, *mockLogger)
+		checkResult func(*testing.T, *Department, error)
+	}{
+		{
+			name: "Success - Update Department",
+			input: &Department{
+				ID:     "test-id-1",
+				Name:   "Updated Department",
+				Status: "active",
+			},
+			setupMocks: func(repo *mockRepository, logger *mockLogger) {
+				logger.On("Info", "service : UpdateDepartment : begin", mock.Anything).Return()
+				logger.On("Info", "service : UpdateDepartment : exit", mock.Anything).Return()
+
+				// First GetByID call to verify existence
+				repo.On("GetByID", mock.Anything, "test-id-1").Return(&Department{
+					ID:     "test-id-1",
+					Name:   "Test Deparmtnet",
+					Code:   "TEST001",
+					Status: "inactive",
+				}, nil).Once()
+
+				// Update call
+				repo.On("Update", mock.Anything, mock.MatchedBy(func(dept *Department) bool {
+					return dept.ID == "test-id-1" && dept.Status == "active"
+				})).Return(nil)
+
+				// Second GetByID call to get updated dept
+				repo.On("GetByID", mock.Anything, "test-id-1").Return(&Department{
+					ID:     "test-id-1",
+					Name:   "Updated Department",
+					Code:   "TEST001",
+					Status: "active",
+				}, nil).Once()
+			},
+			checkResult: func(t *testing.T, result *Department, err error) {
+				assert.NoError(t, err)
+				assert.NotNil(t, result)
+				assert.Equal(t, "Updated Department", result.Name)
+				assert.Equal(t, "active", result.Status)
+			},
+		},
+		{
+			name: "Error - Department Not Found",
+			input: &Department{
+				ID:   "non-existent-id",
+				Name: "Updated Hospital",
+			},
+			setupMocks: func(repo *mockRepository, logger *mockLogger) {
+				logger.On("Info", "service : UpdateDepartment : begin", mock.Anything).Return()
+
+				repo.On("GetByID", mock.Anything, "non-existent-id").
+					Return(nil, errors.New(errors.ErrDeptNotFound, "department not found", nil))
+			},
+			checkResult: func(t *testing.T, result *Department, err error) {
+				assert.Nil(t, result)
+				assert.Error(t, err)
+				appErr, ok := err.(*errors.AppError)
+				assert.True(t, ok)
+				assert.Equal(t, errors.ErrDeptNotFound, appErr.Code)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := new(mockRepository)
+			logger := new(mockLogger)
+			tt.setupMocks(repo, logger)
+
+			service := NewDepartmentService(repo, logger)
+			result, err := service.UpdateDepartment(context.Background(), tt.input)
+
+			tt.checkResult(t, result, err)
+			repo.AssertExpectations(t)
+			logger.AssertExpectations(t)
+		})
+	}
+}

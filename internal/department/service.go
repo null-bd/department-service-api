@@ -12,7 +12,7 @@ import (
 type IDepartmentService interface {
 	CreateDepartment(ctx context.Context, dept *Department) (*Department, error)
 	GetDepartment(ctx context.Context, id string) (*Department, error)
-	ListDepartments(ctx context.Context, branchId string, filter map[string]interface{}, page, limit int) ([]*Department, *Pagination, error)
+	ListDepartment(ctx context.Context, branchId string, filter map[string]interface{}, page, limit int) ([]*Department, *Pagination, error)
 	UpdateDepartment(ctx context.Context, dept *Department) (*Department, error)
 }
 

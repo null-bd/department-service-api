@@ -72,3 +72,8 @@ func (m *mockRepository) List(ctx context.Context, branchId string, filter map[s
 	}
 	return args.Get(0).([]*Department), args.Int(1), args.Error(2)
 }
+
+func (m *mockRepository) Update(ctx context.Context, dept *Department) error {
+	args := m.Called(ctx, dept)
+	return args.Error(0)
+}

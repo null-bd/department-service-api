@@ -302,3 +302,39 @@ func (s *RepositoryTestSuite) TestCreate() {
 	assert.Error(s.T(), err)
 
 }
+
+func (s *RepositoryTestSuite) TestUpdate() {
+	// Arrange
+	ctx := context.Background()
+	dept := &Department{
+		ID:     uuid.New().String(),
+		Name:   "Test Department",
+		Code:   "TEST005",
+		Type:   "medical",
+		Status: "active",
+		Capacity: Capacity{
+			TotalBeds:      0,
+			AvailableBeds:  0,
+			OperatingRooms: 0,
+		},
+	}
+
+	_, err := s.repo.Create(ctx, dept)
+	require.NoError(s.T(), err)
+
+	// Update fields
+	dept.Name = "Updated Department"
+	dept.Status = "inactive"
+
+	// Act
+	err = s.repo.Update(ctx, dept)
+
+	// Assert
+	assert.NoError(s.T(), err)
+
+	// Verify in database
+	updated, err := s.repo.GetByID(ctx, dept.ID)
+	assert.NoError(s.T(), err)
+	assert.Equal(s.T(), "Updated Department", updated.Name)
+	assert.Equal(s.T(), "inactive", updated.Status)
+}

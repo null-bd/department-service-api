@@ -13,7 +13,7 @@ import (
 type IDepartmentHandler interface {
 	CreateDepartment(c *gin.Context)
 	GetDepartment(c *gin.Context)
-	ListDepartments(c *gin.Context)
+	ListDepartment(c *gin.Context)
 	UpdateDepartment(c *gin.Context)
 }
 
