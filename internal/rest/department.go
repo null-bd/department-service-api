@@ -113,7 +113,7 @@ func (h *departmentHandler) ListDepartments(c *gin.Context) {
 func (h *departmentHandler) UpdateDepartment(c *gin.Context) {
 	h.log.Info("handler : UpdateDepartment : begin", nil)
 
-	id := c.Param("id")
+	id := c.Param("Id")
 	if id == "" {
 		HandleError(c, errors.New(errors.ErrBadRequest, "missing department id", nil))
 		return
@@ -131,9 +131,6 @@ func (h *departmentHandler) UpdateDepartment(c *gin.Context) {
 		Name:               req.Name,
 		Type:               req.Type,
 		Status:             req.Status,
-		BranchID:           req.BranchID,
-		OrganizationID:     req.OrganizationID,
-		Code:               req.Code,
 		Specialty:          req.Specialty,
 		ParentDepartmentID: req.ParentDepartmentID,
 		Capacity:           department.Capacity(req.Capacity),

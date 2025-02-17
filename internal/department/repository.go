@@ -85,18 +85,20 @@ const (
 		UPDATE departments 
 		SET 
 			name = $1,
-			code = $2,
-			type = $3,
+			type = $2,
+			status = $3,
 			specialty = $4,
-			branchId = $5,
-			organizationId = $6,
-			parentDepartmentId = $7,
-			status = $8,
-			capacity = $9,
-			operatingHours = $10,
-			metadata = $11,
-			updated_at = $12,
-		WHERE id = $13 AND deleted_at IS NULL`
+			parent_department_id = $5,
+			capacity_total_beds = $6,
+			capacity_available_beds = $7,
+			capacity_operating_rooms = $8,
+			operating_hours_weekday = $9, 
+			operating_hours_weekend = $10, 
+			operating_hours_timezone = $11, 
+			operating_hours_holidays = $12,
+			metadata = $13,
+			updated_at = $14
+		WHERE id = $15 AND deleted_at IS NULL`
 
 	countDeptQuery = `
 		SELECT COUNT(*) 
@@ -342,12 +344,9 @@ func (r *departmentRepository) Update(ctx context.Context, dept *Department) err
 
 	_, err := r.db.Exec(ctx, updateDeptQuery,
 		dept.Name,
-		dept.Code,
 		dept.Type,
 		dept.Status,
 		dept.Specialty,
-		dept.BranchID,
-		dept.OrganizationID,
 		dept.ParentDepartmentID,
 		dept.Capacity.TotalBeds,
 		dept.Capacity.AvailableBeds,
