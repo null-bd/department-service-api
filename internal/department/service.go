@@ -61,19 +61,19 @@ func (s *departmentService) CreateDepartment(ctx context.Context, dept *Departme
 }
 
 func (s *departmentService) GetDepartment(ctx context.Context, id string) (*Department, error) {
-	s.log.Info("service : GetDepatment : begin", logger.Fields{"id": id})
+	s.log.Info("service : GetDepartment : begin", logger.Fields{"id": id})
 
 	dept, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	s.log.Info("service : GetDepatment : exit", nil)
+	s.log.Info("service : GetDepartment : exit", nil)
 	return dept, nil
 }
 
-func (s *departmentService) ListDepartments(ctx context.Context, branchId string, filter map[string]interface{}, page, limit int) ([]*Department, *Pagination, error) {
-	s.log.Info("service : ListDepartments : begin", logger.Fields{"branchId": branchId})
+func (s *departmentService) ListDepartment(ctx context.Context, branchId string, filter map[string]interface{}, page, limit int) ([]*Department, *Pagination, error) {
+	s.log.Info("service : ListDepartment : begin", logger.Fields{"branchId": branchId})
 
 	departments, total, err := s.repo.List(ctx, branchId, filter, page, limit)
 	if err != nil {
@@ -87,7 +87,7 @@ func (s *departmentService) ListDepartments(ctx context.Context, branchId string
 		Pages: pages,
 	}
 
-	s.log.Info("service : ListDepartments : exit", nil)
+	s.log.Info("service : ListDepartment : exit", nil)
 	return departments, pagination, nil
 }
 

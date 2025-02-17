@@ -109,7 +109,7 @@ func setupAPIRoutes(router *gin.Engine, deptHandler rest.IDepartmentHandler, res
 		{
 			// resources.GET("", deptHandler.GetDepartment)
 			departments.POST("", deptHandler.CreateDepartment)
-			departments.GET("", deptHandler.ListDepartments)
+			departments.GET("", deptHandler.ListDepartment)
 			departments.GET("/:deptId", deptHandler.GetDepartment)
 			departments.PUT("/:Id", deptHandler.UpdateDepartment)
 			//departments.DELETE("/:deptId", deptHandler.DeleteDepartment)

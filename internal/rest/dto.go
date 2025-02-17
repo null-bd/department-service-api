@@ -25,7 +25,7 @@ type CreateDepartmentRequest struct {
 	Metadata           map[string]interface{} `json:"metadata"`
 }
 
-type ListDepartmentResponse struct {
+type DepartmentResponse struct {
 	ID                 string                 `json:"id" binding:"required"`
 	BranchID           string                 `json:"branchId"`
 	OrganizationID     string                 `json:"organizationId"`

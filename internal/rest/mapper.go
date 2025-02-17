@@ -27,8 +27,8 @@ func ToDepartment(req *CreateDepartmentRequest) *department.Department {
 	}
 }
 
-func ToDepartmentResponse(dept *department.Department) *ListDepartmentResponse {
-	return &ListDepartmentResponse{
+func ToDepartmentResponse(dept *department.Department) *DepartmentResponse {
+	return &DepartmentResponse{
 		ID:                 dept.ID,
 		BranchID:           dept.BranchID,
 		OrganizationID:     dept.OrganizationID,
