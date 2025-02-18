@@ -30,6 +30,11 @@ auth:
       method: "PUT"
       roles: ["ADMIN", "ORG_ADMIN"] 
       actions: ["update:departments"]
+    - path: "/api/v1/departments/:id"
+      method: "DELETE"
+      roles: ["ADMIN"]
+      actions: ["delete:departments"]
+
   publicPaths:
     - path: "/api/v1/departments"
       method: "POST"
@@ -41,6 +46,8 @@ auth:
       method: "GET"
     - path: "/api/v1/departments/*"
       method: "PUT"
+    - path: "/api/v1/departments/*"
+      method: "DELETE"
 
 database:
   host: "127.0.0.1"

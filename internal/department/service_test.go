@@ -383,3 +383,63 @@ func TestDepartmentService_UpdateDepartment(t *testing.T) {
 		})
 	}
 }
+
+func TestDepartmentService_DeleteDepartment(t *testing.T) {
+	tests := []struct {
+		name        string
+		id          string
+		setupMocks  func(*mockRepository, *mockLogger)
+		checkResult func(*testing.T, error)
+	}{
+		{
+			name: "Success - Delete Inactive Department",
+			id:   "test-id-1",
+			setupMocks: func(repo *mockRepository, logger *mockLogger) {
+				logger.On("Info", "service : DeleteDepartment : begin", mock.Anything).Return()
+				logger.On("Info", "service : DeleteDepartment : exit", mock.Anything).Return()
+
+				repo.On("GetByID", mock.Anything, "test-id-1").Return(&Department{
+					ID:     "test-id-1",
+					Status: "inactive",
+				}, nil)
+				repo.On("Delete", mock.Anything, "test-id-1").Return(nil)
+			},
+			checkResult: func(t *testing.T, err error) {
+				assert.NoError(t, err)
+			},
+		},
+		{
+			name: "Error - Cannot Delete Active Department",
+			id:   "test-id-2",
+			setupMocks: func(repo *mockRepository, logger *mockLogger) {
+				logger.On("Info", "service : DeleteDepartment : begin", mock.Anything).Return()
+
+				repo.On("GetByID", mock.Anything, "test-id-2").Return(&Department{
+					ID:     "test-id-2",
+					Status: "active",
+				}, nil)
+			},
+			checkResult: func(t *testing.T, err error) {
+				assert.Error(t, err)
+				appErr, ok := err.(*errors.AppError)
+				assert.True(t, ok)
+				assert.Equal(t, errors.ErrDeptActive, appErr.Code)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := new(mockRepository)
+			logger := new(mockLogger)
+			tt.setupMocks(repo, logger)
+
+			service := NewDepartmentService(repo, logger)
+			err := service.DeleteDepartment(context.Background(), tt.id)
+
+			tt.checkResult(t, err)
+			repo.AssertExpectations(t)
+			logger.AssertExpectations(t)
+		})
+	}
+}
