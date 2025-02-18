@@ -306,17 +306,30 @@ func (s *RepositoryTestSuite) TestCreate() {
 func (s *RepositoryTestSuite) TestUpdate() {
 	// Arrange
 	ctx := context.Background()
+	now := time.Now().UTC()
 	dept := &Department{
-		ID:     uuid.New().String(),
-		Name:   "Test Department",
-		Code:   "TEST005",
-		Type:   "medical",
+		ID:             uuid.New().String(),
+		BranchID:       uuid.New().String(),
+		OrganizationID: uuid.New().String(),
+		Name:           "Test Department",
+		Code:           "TEST001",
+		Type:           "medical",
+		// ParentDepartmentID: stringPtr(uuid.New().String()),
 		Status: "active",
 		Capacity: Capacity{
 			TotalBeds:      0,
 			AvailableBeds:  0,
 			OperatingRooms: 0,
 		},
+		OperatingHours: OperatingHours{
+			Weekday:  "09:00-17:00",
+			Weekend:  "10:00-14:00",
+			Timezone: "UTC+0",
+			Holidays: "09:00-13:00",
+		},
+		// DepartmentHeadID: stringPtr(uuid.New().String()),
+		CreatedAt: now.Format(time.RFC3339),
+		UpdatedAt: now.Format(time.RFC3339),
 	}
 
 	_, err := s.repo.Create(ctx, dept)

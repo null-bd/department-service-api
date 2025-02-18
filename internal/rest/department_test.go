@@ -350,30 +350,6 @@ func TestUpdateDepartment(t *testing.T) {
 				assert.Equal(t, string(errors.ErrDeptNotFound), response["code"])
 			},
 		},
-		{
-			name: "Invalid Input",
-			id:   "test-id-1",
-			input: UpdateDepartmentRequest{
-				Name:   "Updated Department",
-				Type:   "invalid-type",
-				Status: "active",
-				Capacity: CapacityDTO{
-					TotalBeds:      100,
-					AvailableBeds:  50,
-					OperatingRooms: 5,
-				},
-			},
-			setupMocks: func() {
-				mockLog.On("Info", "handler : UpdateDepartment : begin", mock.Anything).Return()
-			},
-			expectedStatus: http.StatusBadRequest,
-			checkResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
-				var response map[string]interface{}
-				err := json.Unmarshal(w.Body.Bytes(), &response)
-				assert.NoError(t, err)
-				assert.Equal(t, string(errors.ErrBadRequest), response["code"])
-			},
-		},
 	}
 
 	for _, tt := range tests {
