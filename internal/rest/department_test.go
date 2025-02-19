@@ -62,7 +62,7 @@ func setupTest(t *testing.T) (*gin.Engine, *mockDeptSvc, *mockLogger) {
 	router.POST("/departments", handler.CreateDepartment)
 	router.GET("/departments", handler.ListDepartment)
 	router.GET("/departments/:deptId", handler.GetDepartment)
-	router.PUT("/departments/:Id", handler.UpdateDepartment)
+	router.PUT("/departments/:deptId", handler.UpdateDepartment)
 
 	return router, mockDeptSvc, mockLog
 }
