@@ -14,7 +14,10 @@ type IDepartmentService interface {
 	GetDepartment(ctx context.Context, id string) (*Department, error)
 	ListDepartment(ctx context.Context, branchId string, filter map[string]interface{}, page, limit int) ([]*Department, *Pagination, error)
 	UpdateDepartment(ctx context.Context, dept *Department) (*Department, error)
+<<<<<<< HEAD
 	DeleteDepartment(ctx context.Context, id string) error
+=======
+>>>>>>> master
 }
 
 type departmentService struct {

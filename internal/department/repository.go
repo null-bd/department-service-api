@@ -21,7 +21,10 @@ type (
 		GetByCode(ctx context.Context, code string) (*Department, error)
 		List(ctx context.Context, branchId string, filter map[string]interface{}, page, limit int) ([]*Department, int, error)
 		Update(ctx context.Context, dept *Department) error
+<<<<<<< HEAD
 		Delete(ctx context.Context, id string) error
+=======
+>>>>>>> master
 	}
 
 	departmentRepository struct {
@@ -101,6 +104,7 @@ const (
 			updated_at = $14
 		WHERE id = $15 AND deleted_at IS NULL`
 
+<<<<<<< HEAD
 	softDeleteDeptQuery = `
 		UPDATE departments 
 		SET 
@@ -108,6 +112,8 @@ const (
 			updated_at = $1
 		WHERE id = $2 AND deleted_at IS NULL`
 
+=======
+>>>>>>> master
 	countDeptQuery = `
 		SELECT COUNT(*) 
 		FROM departments 
