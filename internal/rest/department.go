@@ -15,10 +15,7 @@ type IDepartmentHandler interface {
 	GetDepartment(c *gin.Context)
 	ListDepartment(c *gin.Context)
 	UpdateDepartment(c *gin.Context)
-<<<<<<< HEAD
 	DeleteDepartment(c *gin.Context)
-=======
->>>>>>> master
 }
 
 type departmentHandler struct {
