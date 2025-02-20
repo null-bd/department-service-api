@@ -302,3 +302,52 @@ func (s *RepositoryTestSuite) TestCreate() {
 	assert.Error(s.T(), err)
 
 }
+
+func (s *RepositoryTestSuite) TestUpdate() {
+	// Arrange
+	ctx := context.Background()
+	now := time.Now().UTC()
+	dept := &Department{
+		ID:             uuid.New().String(),
+		BranchID:       uuid.New().String(),
+		OrganizationID: uuid.New().String(),
+		Name:           "Test Department",
+		Code:           "TEST001",
+		Type:           "medical",
+		// ParentDepartmentID: stringPtr(uuid.New().String()),
+		Status: "active",
+		Capacity: Capacity{
+			TotalBeds:      0,
+			AvailableBeds:  0,
+			OperatingRooms: 0,
+		},
+		OperatingHours: OperatingHours{
+			Weekday:  "09:00-17:00",
+			Weekend:  "10:00-14:00",
+			Timezone: "UTC+0",
+			Holidays: "09:00-13:00",
+		},
+		// DepartmentHeadID: stringPtr(uuid.New().String()),
+		CreatedAt: now.Format(time.RFC3339),
+		UpdatedAt: now.Format(time.RFC3339),
+	}
+
+	_, err := s.repo.Create(ctx, dept)
+	require.NoError(s.T(), err)
+
+	// Update fields
+	dept.Name = "Updated Department"
+	dept.Status = "inactive"
+
+	// Act
+	err = s.repo.Update(ctx, dept)
+
+	// Assert
+	assert.NoError(s.T(), err)
+
+	// Verify in database
+	updated, err := s.repo.GetByID(ctx, dept.ID)
+	assert.NoError(s.T(), err)
+	assert.Equal(s.T(), "Updated Department", updated.Name)
+	assert.Equal(s.T(), "inactive", updated.Status)
+}

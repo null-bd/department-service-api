@@ -20,6 +20,7 @@ type (
 		GetByID(ctx context.Context, id string) (*Department, error)
 		GetByCode(ctx context.Context, code string) (*Department, error)
 		List(ctx context.Context, branchId string, filter map[string]interface{}, page, limit int) ([]*Department, int, error)
+		Update(ctx context.Context, dept *Department) error
 	}
 
 	departmentRepository struct {
@@ -48,7 +49,7 @@ const (
 		) VALUES (
 			$1, $2, $3, $4, $5, $6, 
 			$7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $19
-		) RETURNING id`
+		) RETURNING id, updated_at`
 
 	listDeptBaseQuery = `
 		SELECT 
@@ -79,6 +80,25 @@ const (
 			metadata, created_at, updated_at
 		FROM departments
 		WHERE code = $1 AND deleted_at IS NULL`
+
+	updateDeptQuery = `
+		UPDATE departments 
+		SET 
+			name = $1,
+			type = $2,
+			status = $3,
+			specialty = $4,
+			parent_department_id = $5,
+			capacity_total_beds = $6,
+			capacity_available_beds = $7,
+			capacity_operating_rooms = $8,
+			operating_hours_weekday = $9, 
+			operating_hours_weekend = $10, 
+			operating_hours_timezone = $11, 
+			operating_hours_holidays = $12,
+			metadata = $13,
+			updated_at = $14
+		WHERE id = $15 AND deleted_at IS NULL`
 
 	countDeptQuery = `
 		SELECT COUNT(*) 
@@ -315,4 +335,36 @@ func (r *departmentRepository) List(ctx context.Context, branchId string, filter
 
 	r.log.Debug("repository : List : exit", nil)
 	return depts, total, nil
+}
+
+func (r *departmentRepository) Update(ctx context.Context, dept *Department) error {
+	r.log.Debug("repository : Update : begin", nil)
+
+	now := time.Now().UTC()
+
+	_, err := r.db.Exec(ctx, updateDeptQuery,
+		dept.Name,
+		dept.Type,
+		dept.Status,
+		dept.Specialty,
+		dept.ParentDepartmentID,
+		dept.Capacity.TotalBeds,
+		dept.Capacity.AvailableBeds,
+		dept.Capacity.OperatingRooms,
+		dept.OperatingHours.Weekday,
+		dept.OperatingHours.Weekend,
+		dept.OperatingHours.Timezone,
+		dept.OperatingHours.Holidays,
+		dept.Metadata,
+		now,
+		dept.ID,
+	)
+	if err != nil {
+		return errors.New(errors.ErrDatabaseOperation, "database error", err)
+	}
+
+	dept.UpdatedAt = now.Format(time.RFC3339)
+
+	r.log.Debug("repository : Update : exit", nil)
+	return nil
 }

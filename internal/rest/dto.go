@@ -44,6 +44,20 @@ type DepartmentResponse struct {
 	DeletedAt          string                 `json:"deletedAt"`
 }
 
+type UpdateDepartmentRequest struct {
+	BranchID           string                 `json:"branchId"`
+	OrganizationID     string                 `json:"organizationId"`
+	Name               string                 `json:"name"`
+	Code               string                 `json:"code"`
+	Type               string                 `json:"type"`
+	Specialty          []string               `json:"specialty"`
+	ParentDepartmentID *string                `json:"parentDepartmentId"`
+	Status             string                 `json:"status"`
+	Capacity           CapacityDTO            `json:"capacity"`
+	OperatingHours     OperatingHoursDTO      `json:"operatingHours"`
+	Metadata           map[string]interface{} `json:"metadata"`
+}
+
 type Pagination struct {
 	Total int `json:"total"`
 	Page  int `json:"page"`

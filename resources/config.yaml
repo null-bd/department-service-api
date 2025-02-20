@@ -26,6 +26,10 @@ auth:
       method: "GET"
       roles: ["ADMIN", "ORG_ADMIN", "USER"]
       actions: ["read:departments"]
+    - path: "/api/v1/departments/:id"
+      method: "PUT"
+      roles: ["ADMIN", "ORG_ADMIN"] 
+      actions: ["update:departments"]
   publicPaths:
     - path: "/api/v1/departments"
       method: "POST"
@@ -35,6 +39,8 @@ auth:
       method: "GET"  
     - path: "/api/v1/departments/*"
       method: "GET"
+    - path: "/api/v1/departments/*"
+      method: "PUT"
 
 # TODO: To be updated
 # auth:
