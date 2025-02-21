@@ -49,6 +49,11 @@ func (m *mockDeptSvc) UpdateDepartment(ctx context.Context, dept *department.Dep
 	return args.Get(0).(*department.Department), args.Error(1)
 }
 
+func (m *mockDeptSvc) DeleteDepartment(ctx context.Context, id string) error {
+	args := m.Called(ctx, id)
+	return args.Error(0)
+}
+
 func setupTest(t *testing.T) (*gin.Engine, *mockDeptSvc, *mockLogger) {
 	t.Log("Setting up test")
 	gin.SetMode(gin.TestMode)
@@ -63,6 +68,7 @@ func setupTest(t *testing.T) (*gin.Engine, *mockDeptSvc, *mockLogger) {
 	router.GET("/departments", handler.ListDepartment)
 	router.GET("/departments/:deptId", handler.GetDepartment)
 	router.PUT("/departments/:deptId", handler.UpdateDepartment)
+	router.DELETE("/departments/:deptId", handler.DeleteDepartment)
 
 	return router, mockDeptSvc, mockLog
 }
@@ -358,6 +364,84 @@ func TestUpdateDepartment(t *testing.T) {
 
 			body, _ := json.Marshal(tt.input)
 			req, _ := http.NewRequest("PUT", "/departments/"+tt.id, bytes.NewBuffer(body))
+			req.Header.Set("Content-Type", "application/json")
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+
+			assert.Equal(t, tt.expectedStatus, w.Code)
+			tt.checkResponse(t, w)
+
+			mockDeptSvc.AssertExpectations(t)
+			mockLog.AssertExpectations(t)
+		})
+	}
+}
+
+func TestDeleteDepartment(t *testing.T) {
+	router, mockDeptSvc, mockLog := setupTest(t)
+
+	tests := []struct {
+		name           string
+		id             string
+		setupMocks     func()
+		expectedStatus int
+		checkResponse  func(*testing.T, *httptest.ResponseRecorder)
+	}{
+		{
+			name: "Success",
+			id:   "test-id-1",
+			setupMocks: func() {
+				mockLog.On("Info", "handler : DeleteDepartment : begin", mock.Anything).Return()
+				mockLog.On("Info", "handler : DeleteDepartment : exit", mock.Anything).Return()
+
+				mockDeptSvc.On("DeleteDepartment", mock.Anything, "test-id-1").Return(nil)
+			},
+			expectedStatus: http.StatusNoContent,
+			checkResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
+				assert.Empty(t, w.Body.String())
+			},
+		},
+		{
+			name: "Not Found",
+			id:   "non-existent-id",
+			setupMocks: func() {
+				mockLog.On("Info", "handler : DeleteDepartment : begin", mock.Anything).Return()
+
+				mockDeptSvc.On("DeleteDepartment", mock.Anything, "non-existent-id").Return(
+					errors.New(errors.ErrDeptNotFound, "department not found", nil))
+			},
+			expectedStatus: http.StatusNotFound,
+			checkResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
+				var response map[string]interface{}
+				err := json.Unmarshal(w.Body.Bytes(), &response)
+				assert.NoError(t, err)
+				assert.Equal(t, string(errors.ErrDeptNotFound), response["code"])
+			},
+		},
+		{
+			name: "Cannot Delete Active Department",
+			id:   "active-dept-id",
+			setupMocks: func() {
+				mockLog.On("Info", "handler : DeleteDepartment : begin", mock.Anything).Return()
+
+				mockDeptSvc.On("DeleteDepartment", mock.Anything, "active-dept-id").Return(
+					errors.New(errors.ErrDeptActive, "cannot delete active department", nil))
+			},
+			expectedStatus: http.StatusConflict,
+			checkResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
+				var response map[string]interface{}
+				err := json.Unmarshal(w.Body.Bytes(), &response)
+				assert.NoError(t, err)
+				assert.Equal(t, string(errors.ErrDeptActive), response["code"])
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.setupMocks()
+
+			req, _ := http.NewRequest("DELETE", "/departments/"+tt.id, nil)
 			req.Header.Set("Content-Type", "application/json")
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)

@@ -51,6 +51,8 @@ func getHTTPStatusFromErrorCode(code errors.ErrorCode) int {
 		return http.StatusConflict
 	case errors.ErrDeptNotFound:
 		return http.StatusNotFound
+	case errors.ErrDeptActive:
+		return http.StatusConflict
 	default:
 		return http.StatusInternalServerError
 	}

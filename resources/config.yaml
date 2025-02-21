@@ -30,6 +30,11 @@ auth:
       method: "PUT"
       roles: ["ADMIN", "ORG_ADMIN"] 
       actions: ["update:departments"]
+    - path: "/api/v1/departments/:id"
+      method: "DELETE"
+      roles: ["ADMIN"]
+      actions: ["delete:departments"]
+
   publicPaths:
     - path: "/api/v1/departments"
       method: "POST"
@@ -41,24 +46,8 @@ auth:
       method: "GET"
     - path: "/api/v1/departments/*"
       method: "PUT"
-
-# TODO: To be updated
-# auth:
-#   serviceId: "my-service"
-#   clientId: "my-client"
-#   clientSecret: "${CLIENT_SECRET}"
-#   authServiceUrl: "http://auth-service:8080"  # Auth service endpoint instead of Keycloak
-#   cacheEnabled: true
-#   cacheUrl: "redis:6379"
-#   resources:
-#     - path: "/api/v1/users"
-#       method: "GET"
-#       roles: ["admin", "user"]
-#       actions: ["read:users"]
-#     - path: "/api/v1/users"
-#       method: "POST"
-#       roles: ["admin"]
-#       actions: ["create:users"]
+    - path: "/api/v1/departments/*"
+      method: "DELETE"
 
 database:
   host: "127.0.0.1"

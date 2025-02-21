@@ -21,6 +21,7 @@ type (
 		GetByCode(ctx context.Context, code string) (*Department, error)
 		List(ctx context.Context, branchId string, filter map[string]interface{}, page, limit int) ([]*Department, int, error)
 		Update(ctx context.Context, dept *Department) error
+		Delete(ctx context.Context, id string) error
 	}
 
 	departmentRepository struct {
@@ -99,6 +100,13 @@ const (
 			metadata = $13,
 			updated_at = $14
 		WHERE id = $15 AND deleted_at IS NULL`
+
+	softDeleteDeptQuery = `
+		UPDATE departments 
+		SET 
+			deleted_at = $1,
+			updated_at = $1
+		WHERE id = $2 AND deleted_at IS NULL`
 
 	countDeptQuery = `
 		SELECT COUNT(*) 
@@ -366,5 +374,19 @@ func (r *departmentRepository) Update(ctx context.Context, dept *Department) err
 	dept.UpdatedAt = now.Format(time.RFC3339)
 
 	r.log.Debug("repository : Update : exit", nil)
+	return nil
+}
+
+func (r *departmentRepository) Delete(ctx context.Context, id string) error {
+	r.log.Debug("repository : Delete : begin", nil)
+
+	now := time.Now().UTC()
+
+	_, err := r.db.Exec(ctx, softDeleteDeptQuery, now, id)
+	if err != nil {
+		return errors.New(errors.ErrDatabaseOperation, "database error", err)
+	}
+
+	r.log.Debug("repository : Delete : exit", nil)
 	return nil
 }

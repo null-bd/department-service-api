@@ -15,6 +15,7 @@ type IDepartmentHandler interface {
 	GetDepartment(c *gin.Context)
 	ListDepartment(c *gin.Context)
 	UpdateDepartment(c *gin.Context)
+	DeleteDepartment(c *gin.Context)
 }
 
 type departmentHandler struct {
@@ -146,4 +147,23 @@ func (h *departmentHandler) UpdateDepartment(c *gin.Context) {
 
 	c.JSON(http.StatusOK, ToDepartmentResponse(result))
 	h.log.Info("handler : UpdateDepartment : exit", nil)
+}
+
+func (h *departmentHandler) DeleteDepartment(c *gin.Context) {
+	h.log.Info("handler : DeleteDepartment : begin", nil)
+
+	id := c.Param("deptId")
+	if id == "" {
+		HandleError(c, errors.New(errors.ErrBadRequest, "missing department id", nil))
+		return
+	}
+
+	err := h.deptSvc.DeleteDepartment(c.Request.Context(), id)
+	if err != nil {
+		HandleError(c, err)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+	h.log.Info("handler : DeleteDepartment : exit", nil)
 }

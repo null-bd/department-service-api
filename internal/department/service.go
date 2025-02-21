@@ -14,6 +14,7 @@ type IDepartmentService interface {
 	GetDepartment(ctx context.Context, id string) (*Department, error)
 	ListDepartment(ctx context.Context, branchId string, filter map[string]interface{}, page, limit int) ([]*Department, *Pagination, error)
 	UpdateDepartment(ctx context.Context, dept *Department) (*Department, error)
+	DeleteDepartment(ctx context.Context, id string) error
 }
 
 type departmentService struct {
@@ -113,4 +114,29 @@ func (s *departmentService) UpdateDepartment(ctx context.Context, dept *Departme
 
 	s.log.Info("service : UpdateDepartment : exit", nil)
 	return updated, nil
+}
+
+func (s *departmentService) DeleteDepartment(ctx context.Context, id string) error {
+	s.log.Info("service : DeleteDepartment : begin", nil)
+
+	dept, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	if dept.Status != "inactive" {
+		return &errors.AppError{
+			Code:    errors.ErrDeptActive,
+			Message: "cannot delete active department",
+			Err:     stderr.New("department must be inactive before deletion"),
+		}
+	}
+
+	err = s.repo.Delete(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	s.log.Info("service : DeleteDepartment : exit", nil)
+	return nil
 }

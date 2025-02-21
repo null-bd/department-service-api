@@ -351,3 +351,48 @@ func (s *RepositoryTestSuite) TestUpdate() {
 	assert.Equal(s.T(), "Updated Department", updated.Name)
 	assert.Equal(s.T(), "inactive", updated.Status)
 }
+
+func (s *RepositoryTestSuite) TestDelete() {
+	// Arrange
+	ctx := context.Background()
+	now := time.Now().UTC()
+	dept := &Department{
+		ID:             uuid.New().String(),
+		BranchID:       uuid.New().String(),
+		OrganizationID: uuid.New().String(),
+		Name:           "Test Department",
+		Code:           "TEST001",
+		Type:           "medical",
+		// ParentDepartmentID: stringPtr(uuid.New().String()),
+		Status: "active",
+		Capacity: Capacity{
+			TotalBeds:      0,
+			AvailableBeds:  0,
+			OperatingRooms: 0,
+		},
+		OperatingHours: OperatingHours{
+			Weekday:  "09:00-17:00",
+			Weekend:  "10:00-14:00",
+			Timezone: "UTC+0",
+			Holidays: "09:00-13:00",
+		},
+		// DepartmentHeadID: stringPtr(uuid.New().String()),
+		CreatedAt: now.Format(time.RFC3339),
+		UpdatedAt: now.Format(time.RFC3339),
+	}
+
+	_, err := s.repo.Create(ctx, dept)
+	require.NoError(s.T(), err)
+
+	// Act
+	err = s.repo.Delete(ctx, dept.ID)
+
+	// Assert
+	assert.NoError(s.T(), err)
+
+	// Verify soft delete
+	var deletedAt *time.Time
+	err = s.tc.Pool.QueryRow(ctx, "SELECT deleted_at FROM departments WHERE id = $1", dept.ID).Scan(&deletedAt)
+	assert.NoError(s.T(), err)
+	assert.NotNil(s.T(), deletedAt)
+}
